@@ -4,7 +4,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 
 /**
- * Stores a marker that can be displayed on a video frame
+ * Stores a marker that can be displayed on a video frame.
+ * 
+ * Instances of this class can be created using {@link MarkerType#buildMarker(int, int)}
+ * or {@link MarkerType#buildMarker(javafx.geometry.Point2D) }.
+ * 
  * @author Sam Crow
  */
 public class Marker extends FrameObject {
@@ -24,29 +28,20 @@ public class Marker extends FrameObject {
      */
     private final Color color;
     
+    private final MarkerType type;
     
-    
-    private static final Color DEFAULT_COLOR = Color.RED;
 
-    public Marker(int x, int y, Color color) {
+    Marker(int x, int y, Color color, MarkerType type) {
         this.x = x;
         this.y = y;
         this.color = color;
+        this.type = type;
     }
     
-    public Marker(Point2D point, Color color) {
-        x = (int) Math.round(point.getX());
-        y = (int) Math.round(point.getY());
-        this.color = color;
+    Marker(Point2D point, Color color, MarkerType type) {
+        this( (int) Math.round(point.getX()), (int) Math.round(point.getY()), color, type);
     }
     
-    public Marker(Point2D point) {
-        this(point, DEFAULT_COLOR);
-    }
-    
-    public Marker(int x, int y) {
-        this(x, y, DEFAULT_COLOR);
-    }
 
     public int getX() {
         return x;
@@ -60,6 +55,11 @@ public class Marker extends FrameObject {
         return color;
     }
     
+    public String getTypeName() {
+        return type.getMarkerTypeName();
+    }
     
-    
+    public MarkerType getType() {
+        return type;
+    }
 }

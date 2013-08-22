@@ -18,7 +18,7 @@ public class FrameFinder {
     /**
      * Many cached images
      */
-    private final Cache<Image> cache;
+    private final Cache<Integer, Image> cache;
 
     public FrameFinder(File frameDir) {
         if(frameDir.exists() && !frameDir.isDirectory()) {

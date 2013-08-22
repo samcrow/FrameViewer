@@ -4,6 +4,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.HBox;
@@ -59,11 +60,30 @@ public class PlaybackControlPane extends HBox {
         }
         
         {
-            final ElapsedTimeView timeView = new ElapsedTimeView();
-            timeView.currentFrameProperty().bind(model.currentFrameProperty());
             
-            getChildren().add(timeView);
-            setMargin(timeView, PADDING);
+            final Label timeLabel = new Label("Time: ");
+            
+            getChildren().add(timeLabel);
+            setMargin(timeLabel, PADDING);
+            
+        }
+        
+        
+        {
+            final TimeField timeField = new TimeField();
+            timeField.currentFrameProperty().bindBidirectional(model.currentFrameProperty());
+            
+            getChildren().add(timeField);
+            setMargin(timeField, PADDING);
+        }
+        
+        {
+            
+            final Label frameLabel = new Label("Frame: ");
+            
+            getChildren().add(frameLabel);
+            setMargin(frameLabel, PADDING);
+            
         }
         
         {

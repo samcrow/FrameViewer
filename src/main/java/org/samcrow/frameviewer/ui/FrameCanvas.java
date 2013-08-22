@@ -6,7 +6,6 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,6 +13,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import org.samcrow.frameviewer.Marker;
+import org.samcrow.frameviewer.MarkerType;
 import org.samcrow.frameviewer.PaintableCanvas;
 
 
@@ -61,7 +61,19 @@ public class FrameCanvas extends PaintableCanvas {
                 try {
                     Point2D markerPoint = getFrameLocation(event);
                     
-                    getMarkers().add(new Marker(markerPoint));
+                    //Ask the user for a marker type
+                    MarkerTypeDialog dialog = new MarkerTypeDialog(getScene().getWindow());
+                    //Move the dialog to the position of the cursor
+                    dialog.setX(event.getScreenX());
+                    dialog.setY(event.getScreenY());
+                    MarkerType type = dialog.showAndGetType();
+                    
+                    if(type == null) {
+                        //Do nothing
+                        return;
+                    }
+                    
+                    getMarkers().add(type.buildMarker(markerPoint));
                     repaint();
                 }
                 catch (NotInFrameException ex) {

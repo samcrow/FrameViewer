@@ -40,7 +40,7 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
         try ( PrintStream out = new PrintStream(new FileOutputStream(file)) ) {
             
             //Add heading
-            out.println("Frame,X,Y");
+            out.println("Frame,X,Y,Type");
             
             for(List<T> markerList : this) {
                 for(T marker :  markerList) {
@@ -49,6 +49,8 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
                     out.print(marker.getX());
                     out.print(',');
                     out.print(marker.getY());
+                    out.print(',');
+                    out.print(marker.getType().name());
                     out.println();
                 }
             }
@@ -73,7 +75,10 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
             //Read and ignore header
             reader.readLine();
             
-            final Pattern linePattern = Pattern.compile("(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+)");
+            final Pattern linePattern = Pattern.compile("(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<type>[a-zA-Z_$][a-zA-Z\\d_$]*)");
+            
+            //A pattern for the old line format, with no type specified
+            final Pattern oldLinePattern = Pattern.compile("(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+)");
             
             while(true) {
                 String line = reader.readLine();
@@ -84,18 +89,47 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
                 Matcher matcher = linePattern.matcher(line);
                 if(matcher.find()) {
                     
+                    try {
+                    
                     int frame = Integer.valueOf(matcher.group("frame"));
                     int x = Integer.valueOf(matcher.group("x"));
                     int y = Integer.valueOf(matcher.group("y"));
                     
-                    Marker marker = new Marker(x, y);
+                    String typeName = matcher.group("type");
+                    
+                    MarkerType type = MarkerType.valueOf(typeName);
+                    
+                    
+                    Marker marker = type.buildMarker(x, y);
                     //Find the existing list of markers for this frame
                     instance.getFrameData(frame).add(marker);
                     
+                    }
+                    catch (IllegalArgumentException ex) {
+                        ParseException parseEx = new ParseException("Unrecognized marker type in line \""+line+"\"", 0);
+                        parseEx.initCause(ex);
+                        throw parseEx;
+                    }
                 }
                 else {
-                    Logger.getLogger(PersistentFrameDataStore.class.getName()).log(Level.WARNING, "Line \"{0}\" from file \"{1}\" could not be parsed", new Object[]{line, file.getAbsolutePath()});
-                    throw new ParseException("Failed to parse line "+line, 0);
+                    //Try to parse the old line format
+                    Matcher oldFormatMatcher = oldLinePattern.matcher(line);
+                    if(oldFormatMatcher.find()) {
+                        int frame = Integer.valueOf(matcher.group("frame"));
+                        int x = Integer.valueOf(matcher.group("x"));
+                        int y = Integer.valueOf(matcher.group("y"));
+
+                        //Use the default marker type
+                        MarkerType type = MarkerType.getDefaultType();
+
+                        Marker marker = type.buildMarker(x, y);
+                        //Find the existing list of markers for this frame
+                        instance.getFrameData(frame).add(marker);
+                    }
+                    else {
+                        Logger.getLogger(PersistentFrameDataStore.class.getName()).log(Level.WARNING, "Line \"{0}\" from file \"{1}\" could not be parsed", new Object[]{line, file.getAbsolutePath()});
+                        throw new ParseException("Failed to parse line \""+line+"\"", 0);
+                    }
                 }
             }
             

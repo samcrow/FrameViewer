@@ -2,28 +2,35 @@ package org.samcrow.frameviewer;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
- * Caches several values that can be referred to by their numerical indexes
- * @param <T> The type of image to store
+ * Caches several values that can be referred to by their indexes
+ * @param <K> The type of key to use to access elements
+ * @param <V> The type of value to store
  * @author Sam Crow
  */
-public class Cache<T> {
+public class Cache <K, V> {
     
-    private final CacheSource<? extends T> source;
+    private final CacheSource<? extends V> source;
     
-    private final ArrayList<SoftReference<T>> list;
+    private final Map<Integer, SoftReference<V>> map;
     
-    public Cache(int initialCapacity, CacheSource<? extends T> cache) {
-        list = new ArrayList<>(initialCapacity);
-        fillList(initialCapacity);
+    
+    /**
+     * The maximum number of objects that this cache should maintain
+     */
+    private static final int MAX_CACHE_COUNT = 100;
+    
+    public Cache(int initialCapacity, CacheSource<? extends V> cache) {
+        map = new CachingMap<>(initialCapacity, MAX_CACHE_COUNT);
+        
         this.source = cache;
     }
     
-    public Cache(CacheSource<? extends T> cache) {
+    public Cache(CacheSource<? extends V> cache) {
         this.source = cache;
-        list = new ArrayList<>();
+        map = new CachingMap<>(MAX_CACHE_COUNT);
     }
     
     /**
@@ -31,9 +38,9 @@ public class Cache<T> {
      * @param index The index to get a value for
      * @return
      */
-    public synchronized T get(int index) {
+    public synchronized V get(int index) {
         load(index);
-        SoftReference<T> ref = list.get(index);
+        SoftReference<V> ref = map.get(index);
         if(ref == null) {
             return null;
         }
@@ -43,22 +50,53 @@ public class Cache<T> {
     }
     
     /**
-     * Ensures that this cache has an entry for the given index
-     * @param index The index to load
-     * @throws IOException If an IO error occurred
+     * Determines if this cache has a cached value for the given index
+     * @param index
+     * @return 
      */
-    public synchronized void load(int index) {
-        fillList(index);
-        try {
-        SoftReference<T> ref = list.get(index);
+    public synchronized boolean contains(int index) {
+        SoftReference<V> ref = map.get(index);
         if(ref == null) {
-            ref = new SoftReference<>(source.load(index));
-            list.set(index, ref);
+            return false;
         }
         if(ref.get() == null) {
-            ref = new SoftReference<>(source.load(index));
-            list.set(index, ref);
+            return false;
         }
+        
+        return true;
+    }
+    
+    /**
+     * Clears the value at a given index
+     * @param index The index to clear
+     */
+    public synchronized void clearAt(int index) {
+        
+        SoftReference<V> ref = map.get(index);
+        
+        if(ref != null) {
+            ref.clear();
+            ref.enqueue();
+            //Remove this reference from the list
+            map.remove(index);
+        }
+    }
+    
+    /**
+     * Ensures that this cache has an entry for the given index
+     * @param index The index to load
+     */
+    public synchronized void load(int index) {
+        try {
+            SoftReference<V> ref = map.get(index);
+            if(ref == null) {
+                ref = new SoftReference<>(source.load(index));
+                map.put(index, ref);
+            }
+            if(ref.get() == null) {
+                ref = new SoftReference<>(source.load(index));
+                map.put(index, ref);
+            }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -69,10 +107,11 @@ public class Cache<T> {
      * @param index The index to set the value for
      * @param value The value to set
      */
-    public synchronized void set(int index, T value) {
-        SoftReference<T> ref = new SoftReference<>(value);
-        list.set(index, ref);
+    public synchronized void set(int index, V value) {
+        SoftReference<V> ref = new SoftReference<>(value);
+        map.put(index, ref);
     }
+
     
     /**
      * An interface for something that can provide an image to add to the cache
@@ -88,16 +127,5 @@ public class Cache<T> {
          */
         public T2 load(int index) throws IOException;
         
-    }
-    
-    /**
-     * Fills the list to ensure that the list has a value for the given index.
-     * Null values will be inserted as necessary.
-     * @param lastIndex The index to ensure a value for
-     */
-    private void fillList(int lastIndex) {
-        while(list.size() < lastIndex + 1) {
-            list.add(null);
-        }
     }
 }
