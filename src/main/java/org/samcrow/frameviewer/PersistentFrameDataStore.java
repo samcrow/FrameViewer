@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * @param <T> The type of data to store. This must be an instance of
  * List&lt;Marker&gt;.
  */
-public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T> {
+public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<T> {
 
     /**
      * Writes this data store to a CSV file
@@ -171,6 +171,7 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
                         MarkerType type = MarkerType.getDefaultType();
 
                         Marker marker = type.buildMarker(x, y);
+                        marker.setFrame(frame);
                         //Find the existing list of markers for this frame
                         instance.getFrameData(frame).add(marker);
                     }
