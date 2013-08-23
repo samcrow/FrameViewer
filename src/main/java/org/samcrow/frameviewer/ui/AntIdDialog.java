@@ -70,6 +70,8 @@ public class AntIdDialog extends Stage {
             
             //Type field
             typeBox = new ChoiceBox<>(FXCollections.observableArrayList(AntId.Type.values()));
+            //Set default selection
+            typeBox.getSelectionModel().select(AntId.Type.Control);
             if(lastAntId != null) {
                 typeBox.getSelectionModel().select(lastAntId.getType());
             }
