@@ -11,7 +11,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
@@ -93,6 +92,9 @@ public class PlaybackControlModel implements CurrentFrameProvider {
                 if(frame == 1) {
                     playBackwardsEnabled.set(false);
                     jumpBackwardsEnabled.set(false);
+                    if(player != null) {
+                        player.cancel();
+                    }
                 }
                 else {
                     playBackwardsEnabled.set(true);
@@ -102,6 +104,9 @@ public class PlaybackControlModel implements CurrentFrameProvider {
                 if(frame == getMaximumFrame()) {
                     playForwardEnabled.set(false);
                     jumpForwardEnabled.set(false);
+                    if(player == null) {
+                        player.cancel();
+                    }
                 }
                 else {
                     playForwardEnabled.set(true);
@@ -163,6 +168,10 @@ public class PlaybackControlModel implements CurrentFrameProvider {
     }
     
     private void playForwardButtonClicked() {
+        //Cancel old player, if it exists
+        if(player != null) {
+            player.cancel();
+        }
         //Set up player
         player = new ForwardFramePlayer(this);
         player.setOnCancelled(new Runnable() {
@@ -184,6 +193,10 @@ public class PlaybackControlModel implements CurrentFrameProvider {
     }
     
     private void playBackwardsButtonClicked() {
+        //Cancel old player, if it exists
+        if(player != null) {
+            player.cancel();
+        }
         //Set up player
         player = new BackwardsFramePlayer(this);
         player.setOnCancelled(new Runnable() {

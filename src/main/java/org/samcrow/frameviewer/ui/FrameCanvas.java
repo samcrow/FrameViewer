@@ -10,8 +10,9 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Paint;
+import org.samcrow.frameviewer.AntId;
 import org.samcrow.frameviewer.Marker;
 import org.samcrow.frameviewer.MarkerType;
 import org.samcrow.frameviewer.PaintableCanvas;
@@ -51,7 +52,27 @@ public class FrameCanvas extends PaintableCanvas {
      */
     private double imageHeight;
     
+    /**
+     * X location of the cursor in screen coordinates, when last moved
+     */
+    private double cursorScreenX;
+    /**
+     * Y location of the cursor in screen coordinates, when last moved
+     */
+    private double cursorScreenY;
+    /**
+     * X location of the cursor in canvas coordinates, when last moved
+     */
+    private double cursorCanvasX;
+    /**
+     * Y location of the cursor in canvas coordinates, when last moved
+     */
+    private double cursorCanvasY;
+    
     public FrameCanvas() {
+        
+        setFocusTraversable(true);
+        requestFocus();
         
         //Add a marker when clicked on
         setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -62,19 +83,24 @@ public class FrameCanvas extends PaintableCanvas {
                     Point2D markerPoint = getFrameLocation(event);
                     
                     //Ask the user for a marker type
-                    MarkerTypeDialog dialog = new MarkerTypeDialog(getScene().getWindow());
+                    AntIdDialog dialog = new AntIdDialog(getScene().getWindow());
                     //Move the dialog to the position of the cursor
                     dialog.setX(event.getScreenX());
                     dialog.setY(event.getScreenY());
-                    MarkerType type = dialog.showAndGetType();
+                    AntId antId = dialog.showAndGetId();
+                    MarkerType type = MarkerType.getTypeForMouseEvent(event);
                     
-                    if(type == null) {
+                    if(antId == null) {
                         //Do nothing
                         return;
                     }
                     
-                    getMarkers().add(type.buildMarker(markerPoint));
+                    Marker marker = type.buildMarker(markerPoint);
+                    marker.setAntId(antId);
+                    getMarkers().add(marker);
                     repaint();
+                    
+                    event.consume();
                 }
                 catch (NotInFrameException ex) {
                     //Ignore this click
@@ -83,10 +109,56 @@ public class FrameCanvas extends PaintableCanvas {
             }
         });
         
+        //Update cursor position when the mouse moves
+        setOnMouseMoved(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                requestFocus();
+                cursorScreenX = event.getScreenX();
+                cursorScreenY = event.getScreenY();
+                cursorCanvasX = event.getX();
+                cursorCanvasY = event.getY();
+            }
+        });
+        
+        setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                try {
+                    MarkerType type = MarkerType.getTypeForKey(event.getCode());
+                    
+                    AntIdDialog dialog = new AntIdDialog(getScene().getWindow());
+                    //Move the dialog to the cursor position
+                    dialog.setX(cursorScreenX);
+                    dialog.setY(cursorScreenY);
+                    AntId antId = dialog.showAndGetId();
+                    
+                    if(antId == null) {
+                        //Do nothing
+                        return;
+                    }
+                    
+                    Point2D position = getFrameLocation(cursorCanvasX, cursorCanvasY);
+                    
+                    Marker marker = type.buildMarker(position);
+                    marker.setAntId(antId);
+                    getMarkers().add(marker);
+                    repaint();
+                    
+                    event.consume();
+                }
+                catch (IllegalArgumentException | NotInFrameException ex) {
+                    //No valid type for this key
+                    //Do nothing
+                }
+            }
+        });
+        
         //Repaint when the frame or the markers changes
         image.addListener(new InvalidationListener() {
             @Override
             public void invalidated(Observable o) {
+                requestFocus();
                 repaint();
             }
         });
@@ -133,7 +205,7 @@ public class FrameCanvas extends PaintableCanvas {
             
             gc.drawImage(image.get(), imageTopLeftX, imageTopLeftY, imageWidth, imageHeight);
             
-            Paint initialStroke = gc.getStroke();
+            gc.save();
             //Draw markers
             for(Marker marker : getMarkers()) {
                 gc.setStroke(marker.getColor());
@@ -144,13 +216,10 @@ public class FrameCanvas extends PaintableCanvas {
                 final double canvasX = imageTopLeftX + imageWidth * imageXRatio;
                 final double canvasY = imageTopLeftY + imageHeight * imageYRatio;
                 
-                final int radius = 3;
-                gc.setLineWidth(2);
-                
-                gc.strokeOval(canvasX - radius, canvasY - radius, radius * 2, radius * 2);
+                marker.paint(gc, canvasX, canvasY);
             }
             
-            gc.setStroke(initialStroke);
+            gc.restore();
         }
         
         
@@ -161,18 +230,22 @@ public class FrameCanvas extends PaintableCanvas {
      * Returns the location, in frame image coordinates, of a mouse event
      * @param event
      * @return
-     * @throws org.samcrow.frameviewer.FrameCanvas.NotInFrameException If the mouse
+     * @throws org.samcrow.frameviewer.ui.FrameCanvas.NotInFrameException If the mouse
      * event was not on the displayed frame
      */
     private Point2D getFrameLocation(MouseEvent event) throws NotInFrameException {
-        
-        if(image.get() == null) {
-            throw new NotInFrameException("No image available");
-        }
-        
-        double x = event.getX();
-        double y = event.getY();
-        
+        return getFrameLocation(event.getX(), event.getY());
+    }
+    
+    /**
+     * Returns the location, in frame image coordinates, of a location in local
+     * canvas coordinates
+     * @param x
+     * @param y
+     * @return
+     * @throws org.samcrow.frameviewer.ui.FrameCanvas.NotInFrameException 
+     */
+    private Point2D getFrameLocation(double x, double y) throws NotInFrameException {
         if( ( x < imageTopLeftX || x > (imageTopLeftX + imageWidth) )
               || ( y < imageTopLeftY || y > (imageTopLeftY + imageHeight)  ) ) {
             throw new NotInFrameException("The provided click was outside the bounds of the frame");

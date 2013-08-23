@@ -211,7 +211,7 @@ public class App extends Application {
             dataStore = PersistentFrameDataStore.readFromFile(lastOpenedFile);
             model.setDataStore(dataStore);
         }
-        catch (IOException | ParseException ex) {
+        catch (IOException | ParseException | IllegalStateException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
             MonologFX errDialog = new MonologFX(MonologFX.Type.ERROR);
             errDialog.setModal(true);

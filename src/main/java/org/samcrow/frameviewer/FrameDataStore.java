@@ -192,4 +192,13 @@ public class FrameDataStore<T extends FrameObject> extends ObservableValueBase<F
         return this;
     }
 
+    /**
+     * 
+     * @return The sets of data that this data store contains
+     */
+    protected List<List<T>> getList() {
+        return data;
+    }
+    
+
 }
