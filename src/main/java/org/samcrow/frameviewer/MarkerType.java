@@ -1,6 +1,7 @@
 package org.samcrow.frameviewer;
 
 import javafx.geometry.Point2D;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -16,22 +17,29 @@ import javafx.scene.paint.Color;
  */
 public enum MarkerType {
     
+    
+    Returning ("Returning", MarkerGraphic.FilledDiagonalSquare, Color.LIGHTCYAN, new KeyCodeCombination(KeyCode.R), MouseButton.SECONDARY),
+    
+    LeavingTunnel ("Leaving tunnel", MarkerGraphic.DiagonalSquare, Color.GOLD, new KeyCodeCombination(KeyCode.T, KeyCodeCombination.ALT_DOWN)),
+    
+    LeavingNest ("Leaving nest", MarkerGraphic.DiagonalSquare, Color.HOTPINK, new KeyCodeCombination(KeyCode.N, KeyCodeCombination.ALT_DOWN)),
+    
+    Carrying ("Carrying", MarkerGraphic.Circle, Color.WHITE, new KeyCodeCombination(KeyCode.C)),
+    
+    Standing ("Standing ant", MarkerGraphic.Triangle, Color.LIMEGREEN, new KeyCodeCombination(KeyCode.S)),
+    
+    Unknown ("Unknown", MarkerGraphic.Square, Color.WHITE, new KeyCodeCombination(KeyCode.U)),
+    
+    //Begin locations
+    
+    Tunnel ("at tunnel", MarkerGraphic.X, Color.LIGHTCYAN, new KeyCodeCombination(KeyCode.T)),
+    
+    Window ("at window", MarkerGraphic.PlusSign, Color.MAGENTA, new KeyCodeCombination(KeyCode.W)),
+    
     /**
      * Used for clicks from revision 1 files. Ant ID set to zero.
      */
     Tracking ("Tracking", MarkerGraphic.Circle, Color.RED, MouseButton.PRIMARY),
-    
-    Unsure ("Unsure", MarkerGraphic.Square, Color.WHITE, new KeyCodeCombination(KeyCode.U)),
-    
-    Returner ("Returner", MarkerGraphic.FilledDiagonalSquare, Color.LIGHTCYAN, MouseButton.SECONDARY),
-    
-    Window ("Window", MarkerGraphic.PlusSign, Color.MAGENTA, new KeyCodeCombination(KeyCode.W)),
-    
-    Nest ("Nest", MarkerGraphic.X, Color.YELLOW, new KeyCodeCombination(KeyCode.N)),
-    
-    Leaving ("Leaving", MarkerGraphic.DiagonalSquare, Color.GOLD, new KeyCodeCombination(KeyCode.L)),
-    
-    Standing ("Standing ant", MarkerGraphic.Triangle, Color.LIMEGREEN, new KeyCodeCombination(KeyCode.S)),
     ;
     
     /**
@@ -83,6 +91,14 @@ public enum MarkerType {
         key = null;
         this.mouseButton = mouseButton;
     }
+
+    private MarkerType(String markerTypeName, MarkerGraphic graphic, Color color, KeyCombination key, MouseButton mouseButton) {
+        this.markerTypeName = markerTypeName;
+        this.graphic = graphic;
+        this.color = color;
+        this.key = key;
+        this.mouseButton = mouseButton;
+    }
     
     
 
@@ -108,6 +124,16 @@ public enum MarkerType {
      */
     public void paint(GraphicsContext gc, double centerX, double centerY) {
         graphic.paint(gc, color, centerX, centerY);
+    }
+    
+    
+    
+    /**
+     * 
+     * @return A canvas on which this marker's graphic has been drawn
+     */
+    public Canvas getPaintedCanvas() {
+        return graphic.getPaintedCanvas(color);
     }
     
     //Builders
@@ -144,7 +170,7 @@ public enum MarkerType {
      */
     public static MarkerType getTypeForMouseEvent(MouseEvent event) {
         for(MarkerType type : values()) {
-            if(type.getMouseButton().equals(event.getButton())) {
+            if(type.getMouseButton() != null && type.getMouseButton().equals(event.getButton())) {
                 return type;
             }
         }
@@ -158,7 +184,7 @@ public enum MarkerType {
      */
     public static MarkerType getTypeForKeyboardEvent(KeyEvent event) {
         for(MarkerType type : values()) {
-            if(type.getKey().match(event)) {
+            if(type.getKey() != null && type.getKey().match(event)) {
                 return type;
             }
         }

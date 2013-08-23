@@ -16,6 +16,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -23,6 +24,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXButton;
+import org.samcrow.frameviewer.ui.DraggableNode;
+import org.samcrow.frameviewer.ui.MarkerTypePane;
 import org.samcrow.frameviewer.ui.SaveDialog;
 
 /**
@@ -89,11 +92,11 @@ public class App extends Application {
             chooser.setTitle("Choose a directory with images to process");
             File frameDir = chooser.showDialog(stage);
 
-            VBox root = new VBox();
+            VBox box = new VBox();
             
             MenuBar bar = createMenuBar();
             bar.setUseSystemMenuBar(true);
-            root.getChildren().add(bar);
+            box.getChildren().add(bar);
 
 
             dataStore = new PersistentFrameDataStore<>();
@@ -104,12 +107,18 @@ public class App extends Application {
             canvas.imageProperty().bind(model.currentFrameImageProperty());
             model.bindMarkers(canvas);
 
-            root.getChildren().add(new CanvasPane<>(canvas));
+            box.getChildren().add(new CanvasPane<>(canvas));
 
             PlaybackControlPane controls = new PlaybackControlPane(model);
-            root.getChildren().add(controls);
+            box.getChildren().add(controls);
 
-
+            //Draggable marker types overlay
+            final DraggableNode draggable = new DraggableNode();
+            draggable.getChildren().add(new MarkerTypePane());
+            
+            //Assemble the root StackPane
+            StackPane root = new StackPane();
+            root.getChildren().addAll(box, draggable);
 
             stage.setTitle("Frame Viewer");
             Scene scene = new Scene(root);

@@ -1,5 +1,6 @@
 package org.samcrow.frameviewer;
 
+import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -140,6 +141,25 @@ public enum MarkerGraphic {
     public void paint(GraphicsContext gc, Color color, double centerX, double centerY) {
         paintable.paint(gc, color, centerX, centerY);
     }
+    
+    /**
+     * 
+     * @param color The color to draw in
+     * @return A canvas on which this graphic has been drawn, using the specified color
+     */
+    public Canvas getPaintedCanvas(final Color color) {
+        return new Canvas() {
+            {
+                //Margin on each side, in pixels
+                final double margin = 3;
+                setWidth(RADIUS * 2 + margin * 2);
+                setHeight(RADIUS * 2 + margin * 2);
+                //Draw paintable in the center
+                GraphicsContext gc = getGraphicsContext2D();
+                paintable.paint(gc, color, RADIUS + margin, RADIUS + margin);
+            }
+        };
+    }
 
     /**
      * An interface for something that can be painted onto a Canvas
@@ -161,7 +181,7 @@ public enum MarkerGraphic {
     /**
      * A hint to enumerated values of the approximate radius that they should draw in
      */
-    private static final double RADIUS = 3;
+    static final double RADIUS = 3;
     /**
      * The line width that graphics should use when painting
      */
