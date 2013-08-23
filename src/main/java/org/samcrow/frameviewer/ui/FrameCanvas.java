@@ -124,6 +124,12 @@ public class FrameCanvas extends PaintableCanvas {
         setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
+                //Ignore events when shortcut keys are pressed
+                if(event.isShortcutDown()) {
+                    //ignore
+                    return;
+                }
+                
                 try {
                     MarkerType type = MarkerType.getTypeForKey(event.getCode());
                     
