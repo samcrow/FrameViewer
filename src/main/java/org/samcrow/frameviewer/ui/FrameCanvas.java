@@ -102,7 +102,7 @@ public class FrameCanvas extends PaintableCanvas {
                     
                     event.consume();
                 }
-                catch (NotInFrameException ex) {
+                catch (NotInFrameException | IllegalArgumentException ex) {
                     //Ignore this click
                 }
                 
@@ -131,7 +131,7 @@ public class FrameCanvas extends PaintableCanvas {
                 }
                 
                 try {
-                    MarkerType type = MarkerType.getTypeForKey(event.getCode());
+                    MarkerType type = MarkerType.getTypeForKeyboardEvent(event);
                     
                     AntIdDialog dialog = new AntIdDialog(getScene().getWindow());
                     //Move the dialog to the cursor position

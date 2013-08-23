@@ -3,6 +3,9 @@ package org.samcrow.frameviewer;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -16,19 +19,19 @@ public enum MarkerType {
     /**
      * Used for clicks from revision 1 files. Ant ID set to zero.
      */
-    Tracking("Tracking", MarkerGraphic.Circle, Color.RED),
+    Tracking ("Tracking", MarkerGraphic.Circle, Color.RED, MouseButton.PRIMARY),
     
-    Unsure ("Unsure", MarkerGraphic.Square, Color.WHITE),
+    Unsure ("Unsure", MarkerGraphic.Square, Color.WHITE, new KeyCodeCombination(KeyCode.U)),
     
-    Returner("Returner", MarkerGraphic.FilledDiagonalSquare, Color.LIGHTCYAN),
+    Returner ("Returner", MarkerGraphic.FilledDiagonalSquare, Color.LIGHTCYAN, MouseButton.SECONDARY),
     
-    Window("Window", MarkerGraphic.PlusSign, Color.MAGENTA),
+    Window ("Window", MarkerGraphic.PlusSign, Color.MAGENTA, new KeyCodeCombination(KeyCode.W)),
     
-    Nest("Nest", MarkerGraphic.X, Color.YELLOW),
+    Nest ("Nest", MarkerGraphic.X, Color.YELLOW, new KeyCodeCombination(KeyCode.N)),
     
-    Leaving("Leaving", MarkerGraphic.DiagonalSquare, Color.GOLD),
+    Leaving ("Leaving", MarkerGraphic.DiagonalSquare, Color.GOLD, new KeyCodeCombination(KeyCode.L)),
     
-    Standing("Standing ant", MarkerGraphic.Triangle, Color.LIMEGREEN)
+    Standing ("Standing ant", MarkerGraphic.Triangle, Color.LIMEGREEN, new KeyCodeCombination(KeyCode.S)),
     ;
     
     /**
@@ -36,22 +39,66 @@ public enum MarkerType {
      */
     private final String markerTypeName;
     
+    /**
+     * The graphic used to draw this marker.
+     */
     private final MarkerGraphic graphic;
     
     /**
-     * The color in which this marker should be drawn
+     * The color in which this marker should be drawn.
      */
     private final Color color;
+    
+    /**
+     * The key combination that can be used to create this marker, or null
+     * if this type cannot be created by a key
+     */
+    private final KeyCombination key;
+    /**
+     * The mouse button that can be used to create this marker, or null
+     * if this type cannot be created by a mouse event
+     */
+    private final MouseButton mouseButton;
 
     private MarkerType(String markerTypeName, MarkerGraphic graphic, Color color) {
         this.markerTypeName = markerTypeName;
         this.graphic = graphic;
         this.color = color;
+        key = null;
+        mouseButton = null;
     }
+
+    private MarkerType(String markerTypeName, MarkerGraphic graphic, Color color, KeyCombination key) {
+        this.markerTypeName = markerTypeName;
+        this.graphic = graphic;
+        this.color = color;
+        this.key = key;
+        mouseButton = null;
+    }
+
+    private MarkerType(String markerTypeName, MarkerGraphic graphic, Color color, MouseButton mouseButton) {
+        this.markerTypeName = markerTypeName;
+        this.graphic = graphic;
+        this.color = color;
+        key = null;
+        this.mouseButton = mouseButton;
+    }
+    
+    
 
     public String getMarkerTypeName() {
         return markerTypeName;
     }
+
+    public KeyCombination getKey() {
+        return key;
+    }
+
+    public MouseButton getMouseButton() {
+        return mouseButton;
+    }
+    
+    
 
     /**
      * Paints a symbol for this marker at the given location
@@ -62,6 +109,8 @@ public enum MarkerType {
     public void paint(GraphicsContext gc, double centerX, double centerY) {
         graphic.paint(gc, color, centerX, centerY);
     }
+    
+    //Builders
     
     /**
      * Creates and returns a marker at the specified point
@@ -88,30 +137,31 @@ public enum MarkerType {
         return Tracking;
     }
     
-    public static MarkerType getTypeForKey(KeyCode key) {
-        
-        switch(key) {
-            case U:
-                return Unsure;
-            case W:
-                return Window;
-            case N:
-                return Nest;
-            case L:
-                return Leaving;
-            case S:
-                return Standing;
-            default:
-                throw new IllegalArgumentException("No defined marker type for key "+key);
+    /**
+     * Returns the event type for the given mouse event, or null if none is applicable
+     * @param event
+     * @return 
+     */
+    public static MarkerType getTypeForMouseEvent(MouseEvent event) {
+        for(MarkerType type : values()) {
+            if(type.getMouseButton().equals(event.getButton())) {
+                return type;
+            }
         }
+        throw new IllegalArgumentException("No type for mouse event "+event);
     }
     
-    public static MarkerType getTypeForMouseEvent(MouseEvent event) {
-        if(event.getButton().equals(MouseButton.SECONDARY)) {
-            return Returner;
+    /**
+     * Returns the event type for the given keyboard event, or null if none is applicable.
+     * @param event
+     * @return 
+     */
+    public static MarkerType getTypeForKeyboardEvent(KeyEvent event) {
+        for(MarkerType type : values()) {
+            if(type.getKey().match(event)) {
+                return type;
+            }
         }
-        else {
-            return Tracking;
-        }
+        throw new IllegalArgumentException("No type for keyboard event "+event);
     }
 }
