@@ -29,8 +29,8 @@ class BackwardsFramePlayer extends FramePlayer {
             }
             while (nextFrame % 10 != 0);
             
-            if(nextFrame < 1) {
-                model.setCurrentFrame(1);
+            if(nextFrame < getModel().getFirstFrame()) {
+                model.setCurrentFrame(getModel().getFirstFrame());
                 cancel();
                 return;
             }
@@ -41,8 +41,8 @@ class BackwardsFramePlayer extends FramePlayer {
 
             int newFrame = model.getCurrentFrame() - FRAME_INCREMENT;
 
-            if(newFrame <= 1) {
-                model.setCurrentFrame(1);
+            if(newFrame <= getModel().getFirstFrame()) {
+                model.setCurrentFrame(getModel().getFirstFrame());
                 cancel();
                 return;
             }

@@ -9,7 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
 import jfxtras.labs.dialogs.MonologFX;
-import org.samcrow.frameviewer.PlaybackControlModel;
+import org.samcrow.frameviewer.FrameIndexOutOfBoundsException;
 
 /**
  * A text field that displays a video timecode and allows it to be edited
@@ -18,8 +18,6 @@ import org.samcrow.frameviewer.PlaybackControlModel;
 public class TimeField extends TextField {
     
     private static final double FRAMES_PER_SECOND = 29.97;
-
-    private static final int MINUTES_PER_HOUR = 60;
 
     private static final int SECONDS_PER_MINUTE = 60;
     
@@ -75,7 +73,7 @@ public class TimeField extends TextField {
             
             setText(formatDuration(currentSecond));
         }
-        catch (PlaybackControlModel.FrameIndexOutOfBoundsException ex) {
+        catch (FrameIndexOutOfBoundsException ex) {
             //Invalid frame number
             //Revert
             int currentSecond = (int) Math.round(getCurrentFrame() / FRAMES_PER_SECOND);

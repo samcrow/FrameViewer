@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
+import org.samcrow.frameviewer.PlaybackControlModel;
 
 /**
  * Displays the elapsed time. Assumes a frame rate of 29.97 fps
@@ -16,7 +17,7 @@ public class ElapsedTimeView extends Label {
     
     private final IntegerProperty currentFrame = new SimpleIntegerProperty();
     
-    public ElapsedTimeView() {
+    public ElapsedTimeView(PlaybackControlModel model) {
         
         currentFrame.addListener(new ChangeListener<Number>() {
             @Override
@@ -29,7 +30,7 @@ public class ElapsedTimeView extends Label {
             }
         });
         
-        currentFrame.set(1);
+        currentFrame.set(model.getFirstFrame());
     }
     
     

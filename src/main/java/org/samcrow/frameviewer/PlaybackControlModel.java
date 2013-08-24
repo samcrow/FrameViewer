@@ -83,13 +83,13 @@ public class PlaybackControlModel implements CurrentFrameProvider {
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
                 int frame = newValue.intValue();
                 if(frame < 1 || frame > getMaximumFrame()) {
-                    throw new FrameIndexOutOfBoundsException(1, frame, getMaximumFrame());
+                    throw new FrameIndexOutOfBoundsException(getFirstFrame(), frame, getMaximumFrame());
                 }
                 
                 currentFrameImage.set(finder.getImage(frame));
                 
                 //Disable backwards buttons if the first frame has been reached
-                if(frame == 1) {
+                if(frame <= getFirstFrame()) {
                     playBackwardsEnabled.set(false);
                     jumpBackwardsEnabled.set(false);
                     if(player != null) {
@@ -101,7 +101,7 @@ public class PlaybackControlModel implements CurrentFrameProvider {
                     jumpBackwardsEnabled.set(true);
                 }
                 //Disable forwards buttons if the last frame has been reached
-                if(frame == getMaximumFrame()) {
+                if(frame >= getMaximumFrame()) {
                     playForwardEnabled.set(false);
                     jumpForwardEnabled.set(false);
                     if(player == null) {
@@ -115,8 +115,9 @@ public class PlaybackControlModel implements CurrentFrameProvider {
             }
         });
         
+        
         //Display the first frame
-        currentFrame.set(1);
+        currentFrame.set(getFirstFrame());
     }
     
     /**
@@ -218,11 +219,15 @@ public class PlaybackControlModel implements CurrentFrameProvider {
     }
     
     private void jumpForwardButtonClicked() {
-        currentFrame.set(currentFrame.get() + 1);
+        if(getCurrentFrame() < getMaximumFrame()) {
+            currentFrame.set(currentFrame.get() + 1);
+        }
     }
     
     private void jumpBackwardsButtonClicked() {
-        currentFrame.set(currentFrame.get() - 1);
+        if(getCurrentFrame() > getFirstFrame()) {
+            currentFrame.set(currentFrame.get() - 1);
+        }
     }
     
     private final EventHandler<ActionEvent> pauseHandler = new EventHandler<ActionEvent>() {
@@ -281,6 +286,10 @@ public class PlaybackControlModel implements CurrentFrameProvider {
         return jumpBackwardsHandler;
     }
     
+    public final int getFirstFrame() {
+        return finder.getFirstFrame();
+    }
+    
     public final IntegerProperty currentFrameProperty() {
         return currentFrame;
     }
@@ -295,7 +304,7 @@ public class PlaybackControlModel implements CurrentFrameProvider {
     }
     
     public final int getMaximumFrame() {
-        return finder.frameCount();
+        return finder.getMaximumFrame();
     }
     
     public final ReadOnlyObjectProperty<Image> currentFrameImageProperty() {
@@ -339,46 +348,5 @@ public class PlaybackControlModel implements CurrentFrameProvider {
                 break;
         }
         state.set(newState);
-    }
-    
-    
-    public static class FrameIndexOutOfBoundsException extends IndexOutOfBoundsException {
-        
-        /**
-         * The lowest-numbered frame that can be accessed
-         */
-        private final int firstFrame;
-        /**
-         * The frame that was requested and that led to this exception being thrown
-         */
-        private final int requestedFrame;
-        /**
-         * The highest-numbered frame that can be accessed
-         */
-        private final int lastFrame;
-
-        /**
-         * Constructor
-         * @param firstFrame The minimum valid frame index
-         * @param requestedFrame The frame index that was requested
-         * @param lastFrame The maximum valid frame index
-         */
-        public FrameIndexOutOfBoundsException(int firstFrame, int requestedFrame, int lastFrame) {
-            this.requestedFrame = requestedFrame;
-            this.firstFrame = firstFrame;
-            this.lastFrame = lastFrame;
-        }
-
-        public int getFirstFrame() {
-            return firstFrame;
-        }
-
-        public int getLastFrame() {
-            return lastFrame;
-        }
-
-        public int getRequestedFrame() {
-            return requestedFrame;
-        }
     }
 }

@@ -101,7 +101,9 @@ public class App extends Application {
 
             dataStore = new PersistentFrameDataStore<>();
             saveController = new SaveStatusController(dataStore);
-            model = new DataStoringPlaybackControlModel(new FrameFinder(frameDir), dataStore);
+            FrameFinder finder = new FrameFinder(frameDir);
+            model = new DataStoringPlaybackControlModel(finder, dataStore);
+            
 
             FrameCanvas canvas = new FrameCanvas();
             canvas.imageProperty().bind(model.currentFrameImageProperty());
@@ -130,6 +132,10 @@ public class App extends Application {
 
         }
         catch (Exception ex) {
+            MonologFX dialog = new MonologFX(MonologFX.Type.ERROR);
+            dialog.setTitle("Error");
+            dialog.setMessage(ex.toString());
+            dialog.showDialog();
             ex.printStackTrace();
             stop();
         }

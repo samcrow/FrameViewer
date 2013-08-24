@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import jfxtras.labs.dialogs.MonologFX;
-import jfxtras.labs.dialogs.MonologFXBuilder;
 import jfxtras.labs.dialogs.MonologFXButton;
 
 public class DataStoringPlaybackControlModel extends PlaybackControlModel {
@@ -62,9 +61,10 @@ public class DataStoringPlaybackControlModel extends PlaybackControlModel {
 
     public void setDataStore(FrameDataStore<Marker> dataStore) {
         this.dataStore = dataStore;
-        //Move to frame 1
-        setCurrentFrame(1);
-        canvas.setMarkers(this.dataStore.getFrameData(1));
+        //Move to the first frame
+        int firstFrame = getFirstFrame();
+        setCurrentFrame(firstFrame);
+        canvas.setMarkers(this.dataStore.getFrameData(firstFrame));
         canvas.repaint();
     }
 

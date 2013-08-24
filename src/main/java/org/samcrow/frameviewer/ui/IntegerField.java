@@ -8,7 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextField;
 import jfxtras.labs.dialogs.MonologFX;
-import org.samcrow.frameviewer.PlaybackControlModel.FrameIndexOutOfBoundsException;
+import org.samcrow.frameviewer.FrameIndexOutOfBoundsException;
 
 /**
  * A text field that contains and displays an integer value

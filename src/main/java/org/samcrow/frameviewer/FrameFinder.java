@@ -4,6 +4,8 @@ package org.samcrow.frameviewer;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.scene.image.Image;
 
 /**
@@ -14,6 +16,11 @@ import javafx.scene.image.Image;
 public class FrameFinder {
     
     private final File[] imageFiles;
+    
+    /**
+     * The number of the first frame
+     */
+    private final int firstFrame;
     
     /**
      * Many cached images
@@ -33,6 +40,9 @@ public class FrameFinder {
         //Sort images in lexographical (alphabetical) order
         Arrays.sort(imageFiles);
         
+        //Extract the frame number of the first frame
+        firstFrame = extractFrameNumber(imageFiles[0].getName());
+        
         cache = new Cache<>(imageFiles.length, new Cache.CacheSource<Image>() {
             @Override
             public Image load(int index) throws IOException {
@@ -42,10 +52,17 @@ public class FrameFinder {
     }
     
     /**
-     * @return The number of images available
+     * @return The highest frame number that is available
      */
-    public int frameCount() {
-        return imageFiles.length;
+    public int getMaximumFrame() {
+        return firstFrame + imageFiles.length - 1;
+    }
+    
+    /**
+     * @return The lowest frame number that is available
+     */
+    public int getFirstFrame() {
+        return firstFrame;
     }
     
     /**
@@ -55,8 +72,11 @@ public class FrameFinder {
      * @return An image for the frame
      */
     public Image getImage(int frameNumber) {
+        if(frameNumber < getFirstFrame() || frameNumber > getMaximumFrame()) {
+            throw new FrameIndexOutOfBoundsException(getFirstFrame(), frameNumber, getMaximumFrame());
+        }
         //Convert from 1-based to 0-based indexes
-        int index = frameNumber - 1;
+        int index = frameNumber - getFirstFrame();
         return cache.get(index);
     }
 
@@ -69,5 +89,17 @@ public class FrameFinder {
         }
         
         return image;
+    }
+    
+    private static int extractFrameNumber(String fileName) {
+        //Pattern that matches numbers and then a 1-4 character file extension
+        //before the end of the input, case insensitive
+        //with the numbers in group 1 
+        Pattern pattern = Pattern.compile("(\\d+).[a-z]{1,4}\\z", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(fileName);
+        if(!matcher.find()) {
+            throw new IllegalArgumentException("File name "+fileName+" does not match the expected pattern");
+        }
+        return Integer.valueOf(matcher.group(1));
     }
 }
