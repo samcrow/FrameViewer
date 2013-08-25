@@ -27,14 +27,63 @@ public class AntId {
         /**
          * Ants going out
          */
-        Forager,
+        Out ("Forager"),
         /**
          * Ants going in
          */
-        Control,
+        Down ("Control"),
+        
+        NestMaintenance,
+        
+        Stays,
+        
+        Meanders,
+        
         /**
          * Something else
          */
         Unknown,
+        ;
+        /**
+         * The name of this type, declared in 1.2.1 beta 1,
+         * or null if none exists
+         */
+        private String legacyName = null;
+        
+        private Type(String legacyName) {
+            this.legacyName = legacyName;
+        }
+        private Type() {
+            
+        }
+        public String getLegacyName() {
+            return legacyName;
+        }
+        
+        /**
+         * Returns the type enumeration for the given name. If no type for
+         * the name exists, searches for a type with a legacy name that
+         * matches the given name.
+         * @see Enum#valueOf(java.lang.Class, java.lang.String) 
+         * @param name The name
+         * @return A modern type corresponding to the name
+         * @throws IllegalArgumentException If the given name does not correspond
+         * to an enumeration value
+         */
+        public static Type valueOfWithLegacySupport(String name) {
+            try {
+                return valueOf(name);
+            }
+            catch (IllegalArgumentException ex) {
+                //No value for the name
+                //Search for a legacy value
+                for(Type type : values()) {
+                    if(type.getLegacyName().equals(name)) {
+                        return type;
+                    }
+                }
+                throw new IllegalArgumentException("No Type value for name "+name);
+            }
+        }
     }
 }

@@ -141,7 +141,7 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                         int y = Integer.valueOf(matcher.group("y"));
 
                         int antId = Integer.valueOf(matcher.group("ant"));
-                        AntId.Type antType = AntId.Type.valueOf(matcher.group("antType"));
+                        AntId.Type antType = AntId.Type.valueOfWithLegacySupport(matcher.group("antType"));
                         String typeName = matcher.group("markerType");
 
                         MarkerType type = MarkerType.valueOf(typeName);
