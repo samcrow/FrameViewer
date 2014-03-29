@@ -3,7 +3,6 @@ package org.samcrow.frameviewer;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 /**
  * Stores a marker that can be displayed on a video frame.

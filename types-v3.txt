@@ -1,0 +1,45 @@
+enum AntActivity:
+	Standing still
+	walking
+	carrying unknown
+	carrying food
+	carrying dirt
+	Unknown
+
+enum AntLocation:
+	in entrance chamber
+	edge
+	leaving nest
+	returning to nest
+	ascending
+	descending
+	at tunnel
+	at exit
+	Unknown
+
+Marker3:
+	is interaction, boolean
+	if is interaction:
+		interaction type, enum: OneWay: Focal ant started interaction, met ant was not involved, TwoWay: Both ants involved in interaction
+		activity of ant met, AntActivity
+		Location of ant met, AntLocation
+	x
+	y
+	frame
+	ant ID
+	focal ant activity, AntActivity
+	focal ant location, AntLocation
+		
+
+Marker type mappings: All are interactions; focal ant activity and location are unknown
+Returning -> met ant activity: unknown, met ant location: returning to nest
+Leaving tunnel -> activity: unknown, location: ascending
+Leaving nest -> activity: unknown, location: leaving nest
+Carrying -> activity: carrying unknown, location: Unknown
+Standing -> activity: standing still, location: unknown
+Unknown -> activity: unknown, location: unknown, Not an interaction
+
+The following mappings are not interactions; the activity and location refer to the focal ant
+Tracking -> activity: Unknown, location: Unknown
+At tunnel -> activity: unknown, location: at tunnel
+At window -> activity: unknown, location: at exit
