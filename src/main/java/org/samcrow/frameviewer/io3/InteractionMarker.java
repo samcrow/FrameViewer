@@ -17,6 +17,9 @@ public class InteractionMarker extends Marker {
     public InteractionMarker(int x, int y, AntActivity focusAntActivity, AntLocation focusAntLocation, AntActivity metAntActivity, AntLocation metAntLocation) {
         super(x, y, focusAntActivity, focusAntLocation);
         
+        this.metAntActivity = metAntActivity;
+        this.metAntLocation = metAntLocation;
+        
         // Set up an alternate graphic
         graphic = MarkerGraphic.Triangle;
         color = Color.YELLOW;
@@ -29,13 +32,13 @@ public class InteractionMarker extends Marker {
     public String toCSVLine() {
         StringBuilder buffer = new StringBuilder();
         
+        buffer.append(antId);
+        buffer.append(',');
         buffer.append(frame);
         buffer.append(',');
         buffer.append(x);
         buffer.append(',');
         buffer.append(y);
-        buffer.append(',');
-        buffer.append(antId);
         buffer.append(',');
         buffer.append(focusAntActivity.toString());
         buffer.append(',');

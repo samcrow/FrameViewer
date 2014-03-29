@@ -17,12 +17,12 @@ public class Marker extends FrameObject {
     /**
      * The X position, in frame coordinates, of this marker
      */
-    protected final int x;
+    protected int x;
 
     /**
      * The Y position, in frame coordinates, of this marker
      */
-    protected final int y;
+    protected int y;
 
     /**
      * The color in which this marker should be displayed
@@ -131,6 +131,19 @@ public class Marker extends FrameObject {
         this.focusAntLocation = focusAntLocation;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+    
+    public void setPosition(Point2D position) {
+        x = (int) Math.round(position.getX());
+        y = (int) Math.round(position.getY());
+    }
+
     // File-related things
     
     /**
@@ -141,19 +154,19 @@ public class Marker extends FrameObject {
      * subclass InteractionMarker.
      */
     public static String fileHeader() {
-        return "Frame,X,Y,Ant,Focus Ant Activity, Focus Ant Location,Tracked Ant Activity, Tracked Ant Location";
+        return "Ant,Frame,X,Y,Focus Ant Activity,Focus Ant Location,Tracked Ant Activity,Tracked Ant Location";
     }
     
     public String toCSVLine() {
         StringBuilder buffer = new StringBuilder();
         
+        buffer.append(antId);
+        buffer.append(',');
         buffer.append(frame);
         buffer.append(',');
         buffer.append(x);
         buffer.append(',');
         buffer.append(y);
-        buffer.append(',');
-        buffer.append(antId);
         buffer.append(',');
         buffer.append(focusAntActivity.toString());
         buffer.append(',');

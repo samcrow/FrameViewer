@@ -1,8 +1,10 @@
-package org.samcrow.frameviewer;
+package org.samcrow.frameviewer.io2;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import org.samcrow.frameviewer.AntId;
+import org.samcrow.frameviewer.FrameObject;
 
 /**
  * Stores a marker that can be displayed on a video frame.

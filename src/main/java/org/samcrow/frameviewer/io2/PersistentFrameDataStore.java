@@ -1,4 +1,4 @@
-package org.samcrow.frameviewer;
+package org.samcrow.frameviewer.io2;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,13 +15,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.samcrow.frameviewer.AntId;
+import org.samcrow.frameviewer.FrameDataStore;
 
 /**
  * A frame data store that can read/write its contents to/from files
  * <p/>
  * @author Sam Crow
  * @param <T> The type of data to store. This must be an instance of
- * List&lt;Marker&gt;.
+ * Marker.
  */
 public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<T> {
 

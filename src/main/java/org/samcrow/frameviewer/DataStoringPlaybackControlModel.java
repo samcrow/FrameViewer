@@ -1,5 +1,6 @@
 package org.samcrow.frameviewer;
 
+import org.samcrow.frameviewer.io3.Marker;
 import org.samcrow.frameviewer.ui.FrameCanvas;
 import java.util.List;
 import java.util.logging.Logger;

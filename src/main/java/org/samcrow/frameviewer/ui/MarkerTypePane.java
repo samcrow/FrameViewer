@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
-import org.samcrow.frameviewer.MarkerType;
+import org.samcrow.frameviewer.io2.MarkerType;
 
 /**
  * A pane that displays the marker types that can be created

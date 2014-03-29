@@ -12,7 +12,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import org.samcrow.frameviewer.MarkerType;
+import org.samcrow.frameviewer.io2.MarkerType;
 
 /**
  * A dialog that asks the user to choose a type of marker to do something with

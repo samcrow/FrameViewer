@@ -36,6 +36,26 @@ public class FrameDataStore<T extends FrameObject> extends ObservableValueBase<F
     private final IntegerProperty currentFrame = new SimpleIntegerProperty();
 
     /**
+     * Makes a deep copy of another frame data store. Copies each
+     * frame's list of markers. The markers themselves are not copied,
+     * so this constructor does not allow the original to be
+     * safely modified without affecting the new object.
+     * @param other 
+     */
+    public FrameDataStore(FrameDataStore<? extends T> other) {
+        int frame = 0;
+        for(List<? extends T> frameMarkers : other.getList()) {
+            setFrameData(frame, new LinkedList<>(frameMarkers));
+            
+            frame++;
+        }
+    }
+    
+    public FrameDataStore() {
+        
+    }
+    
+    /**
      *
      * @return The data associated with the current frame
      * @see #currentFrameProperty()
@@ -53,7 +73,7 @@ public class FrameDataStore<T extends FrameObject> extends ObservableValueBase<F
         setFrameData(frame, value);
     }
 
-    public void setFrameData(int frame, List<T> value) {
+    public final void setFrameData(int frame, List<T> value) {
         fillList(frame);
 
         if (value instanceof FrameObject) {

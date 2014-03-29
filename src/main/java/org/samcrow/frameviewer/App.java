@@ -24,6 +24,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXButton;
+import org.samcrow.frameviewer.io3.Marker;
+import org.samcrow.frameviewer.io3.PersistentFrameDataStore;
 import org.samcrow.frameviewer.ui.DraggableNode;
 import org.samcrow.frameviewer.ui.MarkerTypePane;
 import org.samcrow.frameviewer.ui.SaveDialog;

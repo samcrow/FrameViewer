@@ -10,13 +10,8 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import org.samcrow.frameviewer.AntId;
-import org.samcrow.frameviewer.FrameIndexOutOfBoundsException;
-import org.samcrow.frameviewer.Marker;
-import org.samcrow.frameviewer.MarkerType;
+import org.samcrow.frameviewer.io3.Marker;
 import org.samcrow.frameviewer.PaintableCanvas;
 
 
@@ -54,23 +49,6 @@ public class FrameCanvas extends PaintableCanvas {
      */
     private double imageHeight;
     
-    /**
-     * X location of the cursor in screen coordinates, when last moved
-     */
-    private double cursorScreenX;
-    /**
-     * Y location of the cursor in screen coordinates, when last moved
-     */
-    private double cursorScreenY;
-    /**
-     * X location of the cursor in canvas coordinates, when last moved
-     */
-    private double cursorCanvasX;
-    /**
-     * Y location of the cursor in canvas coordinates, when last moved
-     */
-    private double cursorCanvasY;
-    
     public FrameCanvas() {
         
         setFocusTraversable(true);
@@ -89,16 +67,16 @@ public class FrameCanvas extends PaintableCanvas {
                     //Move the dialog to the position of the cursor
                     dialog.setX(event.getScreenX());
                     dialog.setY(event.getScreenY());
-                    AntId antId = dialog.showAndGetId();
-                    MarkerType type = MarkerType.getTypeForMouseEvent(event);
+                    dialog.showAndWait();
                     
-                    if(antId == null) {
-                        //Do nothing
+                    if(!dialog.success()) {
+                        // Do nothing
                         return;
                     }
                     
-                    Marker marker = type.buildMarker(markerPoint);
-                    marker.setAntId(antId);
+                    Marker marker = dialog.getSelectedMarker();
+                    marker.setPosition(markerPoint);
+                    
                     getMarkers().add(marker);
                     repaint();
                     
@@ -116,49 +94,6 @@ public class FrameCanvas extends PaintableCanvas {
             @Override
             public void handle(MouseEvent event) {
                 requestFocus();
-                cursorScreenX = event.getScreenX();
-                cursorScreenY = event.getScreenY();
-                cursorCanvasX = event.getX();
-                cursorCanvasY = event.getY();
-            }
-        });
-        
-        setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                //Ignore events when shortcut keys are pressed
-                if(event.isShortcutDown()) {
-                    //ignore
-                    return;
-                }
-                
-                try {
-                    MarkerType type = MarkerType.getTypeForKeyboardEvent(event);
-                    
-                    AntIdDialog dialog = new AntIdDialog(getScene().getWindow());
-                    //Move the dialog to the cursor position
-                    dialog.setX(cursorScreenX);
-                    dialog.setY(cursorScreenY);
-                    AntId antId = dialog.showAndGetId();
-                    
-                    if(antId == null) {
-                        //Do nothing
-                        return;
-                    }
-                    
-                    Point2D position = getFrameLocation(cursorCanvasX, cursorCanvasY);
-                    
-                    Marker marker = type.buildMarker(position);
-                    marker.setAntId(antId);
-                    getMarkers().add(marker);
-                    repaint();
-                    
-                    event.consume();
-                }
-                catch (IllegalArgumentException | NotInFrameException ex) {
-                    //No valid type for this key
-                    //Do nothing
-                }
             }
         });
         

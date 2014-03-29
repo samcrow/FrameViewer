@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
@@ -15,7 +16,10 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import org.samcrow.frameviewer.AntId;
+import org.samcrow.frameviewer.io3.AntActivity;
+import org.samcrow.frameviewer.io3.AntLocation;
+import org.samcrow.frameviewer.io3.InteractionMarker;
+import org.samcrow.frameviewer.io3.Marker;
 
 /**
  * A dialog that asks the user to enter an ant ID
@@ -26,13 +30,24 @@ public class AntIdDialog extends Stage {
     /**
      * The last ant ID that was entered. This is used to suggest a new ant ID.
      */
-    private static AntId lastAntId;
+    private static int lastAntId = 0;
+    private static AntActivity lastActivity = AntActivity.Unknown;
+    private static AntLocation lastLocation = AntLocation.Unknown;
+    private static boolean lastIsInteraction = false;
+    private static AntActivity lastMetActivity = AntActivity.Unknown;
+    private static AntLocation lastMetLocation = AntLocation.Unknown;
     
     private boolean succeeded = false;
 
-    private final IntegerField antIdField;
-
-    private final ChoiceBox<AntId.Type> typeBox;
+    private final IntegerField antIdField = new IntegerField();
+    
+    private final ChoiceBox<AntActivity> activityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
+    private final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    
+    private final CheckBox interactionBox = new CheckBox("Interaction");
+    private final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
+    private final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    
     
     public AntIdDialog(Window parent) {
         
@@ -42,15 +57,11 @@ public class AntIdDialog extends Stage {
         
         GridPane topBox = new GridPane();
         {
-            final Label label = new Label("Ant ID");
+            final Label label = new Label("Focus ant");
             topBox.add(label, 0, 0);
             GridPane.setMargin(label, PADDING);
             
-            antIdField = new IntegerField();
             antIdField.setPrefColumnCount(4);
-            if(lastAntId != null) {
-                antIdField.setValue(lastAntId.getId());
-            }
             //Close when the return key is pressed
             antIdField.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -63,20 +74,25 @@ public class AntIdDialog extends Stage {
             topBox.add(antIdField, 1, 0);
             GridPane.setMargin(antIdField, PADDING);
             
-            //Type field label
-            final Label typeLabel = new Label("Type:");
-            topBox.add(typeLabel, 0, 1);
-            GridPane.setMargin(typeLabel, PADDING);
+            // Focus ant activity and location
+            topBox.add(activityBox, 0, 1, 2, 1);
+            GridPane.setMargin(activityBox, PADDING);
             
-            //Type field
-            typeBox = new ChoiceBox<>(FXCollections.observableArrayList(AntId.Type.values()));
-            //Set default selection
-            typeBox.getSelectionModel().select(AntId.Type.Unknown);
-            if(lastAntId != null) {
-                typeBox.getSelectionModel().select(lastAntId.getType());
-            }
-            topBox.add(typeBox, 1, 1);
-            GridPane.setMargin(typeBox, PADDING);
+            topBox.add(locationBox, 0, 2, 2, 1);
+            GridPane.setMargin(locationBox, PADDING);
+
+            // Checkbox and met ant selectors
+            topBox.add(interactionBox, 0, 3, 2, 1);
+            GridPane.setMargin(interactionBox, PADDING);
+            
+            topBox.add(metActivityBox, 0, 4, 2, 1);
+            GridPane.setMargin(metActivityBox, PADDING);
+            
+            topBox.add(metLocationBox, 0, 5, 2, 1);
+            GridPane.setMargin(metLocationBox, PADDING);
+            
+            
+            
         }
         root.getChildren().add(topBox);
         
@@ -101,6 +117,7 @@ public class AntIdDialog extends Stage {
                 @Override
                 public void handle(ActionEvent t) {
                     succeeded = true;
+                    saveValues();
                     close();
                 }
             });
@@ -109,8 +126,20 @@ public class AntIdDialog extends Stage {
         }
         root.getChildren().add(bottomBox);
         
+        // Bind checkbox to met ant enable/disable
+        metActivityBox.disableProperty().bind(interactionBox.selectedProperty().not());
+        metLocationBox.disableProperty().bind(interactionBox.selectedProperty().not());
         
-        setTitle("Enter ant ID");
+        // Fill in initial values for fields
+        antIdField.setValue(lastAntId);
+        activityBox.getSelectionModel().select(lastActivity);
+        locationBox.getSelectionModel().select(lastLocation);
+        interactionBox.setSelected(lastIsInteraction);
+        metActivityBox.getSelectionModel().select(lastMetActivity);
+        metLocationBox.getSelectionModel().select(lastMetLocation);
+        
+        
+        setTitle("Enter marker info");
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         initStyle(StageStyle.UTILITY);
@@ -121,25 +150,40 @@ public class AntIdDialog extends Stage {
     }
     
     /**
-     * Shows this dialog, waits for it to close, and returns the entered ant ID
-     * @return The entered ant ID, or -1 if the user canceled the operation
+     * Saves the current form values in static fields for later access
      */
-    public AntId showAndGetId() {
-        showAndWait();
-        return getEnteredId();
+    private void saveValues() {
+        
+        lastAntId = antIdField.getValue();
+        lastActivity = activityBox.getValue();
+        lastLocation = locationBox.getValue();
+        lastIsInteraction = interactionBox.isSelected();
+        lastMetActivity = metActivityBox.getValue();
+        lastMetLocation = metLocationBox.getValue();
     }
     
     /**
      * 
-     * @return The ant ID that was entered, or -1 if the user canceled the operation
+     * @return A Marker, created based on the user's selections. Its X and Y
+     * values will be set to zero.
      */
-    public AntId getEnteredId() {
-        if(succeeded) {
-            lastAntId = new AntId(antIdField.getValue(), typeBox.getValue());
-            return lastAntId;
+    public Marker getSelectedMarker() {
+        Marker marker;
+        if(interactionBox.isSelected()) {
+            marker = new InteractionMarker(0, 0, activityBox.getValue(), locationBox.getValue(), metActivityBox.getValue(), metLocationBox.getValue());
         }
         else {
-            return null;
+            marker = new Marker(0, 0, activityBox.getValue(), locationBox.getValue());
         }
+        marker.setAntId(antIdField.getValue());
+        return marker;
+    }
+    
+    /**
+     * 
+     * @return True if the user entered valid values, otherwise false
+     */
+    public boolean success() {
+        return succeeded;
     }
 }

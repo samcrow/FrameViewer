@@ -1,4 +1,4 @@
-package org.samcrow.frameviewer;
+package org.samcrow.frameviewer.io2;
 
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -10,6 +10,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import org.samcrow.frameviewer.MarkerGraphic;
 
 /**
  * Enumerates types of markers that are available
