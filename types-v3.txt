@@ -43,3 +43,10 @@ The following mappings are not interactions; the activity and location refer to 
 Tracking -> activity: Unknown, location: Unknown
 At tunnel -> activity: unknown, location: at tunnel
 At window -> activity: unknown, location: at exit
+
+
+Interaction types:
+Performed: Focal ant started interaction, met ant did not participate
+Received: Met ant started interaction, focal ant did not participate
+2-way: Both ants participated in interaction
+Unknown

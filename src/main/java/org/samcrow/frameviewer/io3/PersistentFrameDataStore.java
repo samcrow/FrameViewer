@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.samcrow.frameviewer.FrameDataStore;
-import org.samcrow.frameviewer.FrameObject;
 
 /**
  * A frame data store that can read/write its contents to/from files
@@ -127,7 +126,7 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
             // Read and ignore header
             reader.readLine();
 
-            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*)*$");
+            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*)*$");
 
             while (true) {
                 String line = reader.readLine();
@@ -155,9 +154,13 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                             // Marker is an interaction marker
                             AntActivity trackedAntActivity = AntActivity.valueOf(trackedAntActivityString);
                             AntLocation trackedAntLocation = AntLocation.valueOf(matcher.group("trackedAntLocation"));
+                            InteractionMarker.InteractionType type = InteractionMarker.InteractionType.valueOf(matcher.group("interactionType"));
                             
-                            marker = new InteractionMarker(x, y, focusAntActivity, focusAntLocation, trackedAntActivity, trackedAntLocation);
-                            marker.setAntId(antId);
+                            InteractionMarker interactionMarker = new InteractionMarker(x, y, focusAntActivity, focusAntLocation, trackedAntActivity, trackedAntLocation);
+                            interactionMarker.setAntId(antId);
+                            interactionMarker.setType(type);
+                            
+                            marker = interactionMarker;
                         }
                         else {
                             // Not an interaction marker

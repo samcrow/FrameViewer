@@ -34,6 +34,7 @@ public class AntIdDialog extends Stage {
     private static AntActivity lastActivity = AntActivity.Unknown;
     private static AntLocation lastLocation = AntLocation.Unknown;
     private static boolean lastIsInteraction = false;
+    private static InteractionMarker.InteractionType lastInteractionType = InteractionMarker.InteractionType.Unknown;
     private static AntActivity lastMetActivity = AntActivity.Unknown;
     private static AntLocation lastMetLocation = AntLocation.Unknown;
     
@@ -45,6 +46,8 @@ public class AntIdDialog extends Stage {
     private final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
     
     private final CheckBox interactionBox = new CheckBox("Interaction");
+    private final ChoiceBox<InteractionMarker.InteractionType> interactionTypeBox
+            = new ChoiceBox<>(FXCollections.observableArrayList(InteractionMarker.InteractionType.values()));
     private final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
     private final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
     
@@ -57,7 +60,7 @@ public class AntIdDialog extends Stage {
         
         GridPane topBox = new GridPane();
         {
-            final Label label = new Label("Focus ant");
+            final Label label = new Label("Focal ant:");
             topBox.add(label, 0, 0);
             GridPane.setMargin(label, PADDING);
             
@@ -82,13 +85,21 @@ public class AntIdDialog extends Stage {
             GridPane.setMargin(locationBox, PADDING);
 
             // Checkbox and met ant selectors
-            topBox.add(interactionBox, 0, 3, 2, 1);
+            topBox.add(interactionBox, 0, 3, 1, 1);
             GridPane.setMargin(interactionBox, PADDING);
+            // Interaction type to the right of the checkbox
+            topBox.add(interactionTypeBox, 1, 3, 1, 1);
+            GridPane.setMargin(interactionTypeBox, PADDING);
             
-            topBox.add(metActivityBox, 0, 4, 2, 1);
+            Label metLabel = new Label("Met ant:");
+            topBox.add(metLabel, 0, 4, 2, 1);
+            GridPane.setMargin(metLabel, PADDING);
+            metLabel.disableProperty().bind(interactionBox.selectedProperty().not());
+            
+            topBox.add(metActivityBox, 0, 5, 2, 1);
             GridPane.setMargin(metActivityBox, PADDING);
             
-            topBox.add(metLocationBox, 0, 5, 2, 1);
+            topBox.add(metLocationBox, 0, 6, 2, 1);
             GridPane.setMargin(metLocationBox, PADDING);
             
             
@@ -129,12 +140,14 @@ public class AntIdDialog extends Stage {
         // Bind checkbox to met ant enable/disable
         metActivityBox.disableProperty().bind(interactionBox.selectedProperty().not());
         metLocationBox.disableProperty().bind(interactionBox.selectedProperty().not());
+        interactionTypeBox.disableProperty().bind(interactionBox.selectedProperty().not());
         
         // Fill in initial values for fields
         antIdField.setValue(lastAntId);
         activityBox.getSelectionModel().select(lastActivity);
         locationBox.getSelectionModel().select(lastLocation);
         interactionBox.setSelected(lastIsInteraction);
+        interactionTypeBox.setValue(lastInteractionType);
         metActivityBox.getSelectionModel().select(lastMetActivity);
         metLocationBox.getSelectionModel().select(lastMetLocation);
         
@@ -158,6 +171,7 @@ public class AntIdDialog extends Stage {
         lastActivity = activityBox.getValue();
         lastLocation = locationBox.getValue();
         lastIsInteraction = interactionBox.isSelected();
+        lastInteractionType = interactionTypeBox.getValue();
         lastMetActivity = metActivityBox.getValue();
         lastMetLocation = metLocationBox.getValue();
     }
@@ -170,7 +184,9 @@ public class AntIdDialog extends Stage {
     public Marker getSelectedMarker() {
         Marker marker;
         if(interactionBox.isSelected()) {
-            marker = new InteractionMarker(0, 0, activityBox.getValue(), locationBox.getValue(), metActivityBox.getValue(), metLocationBox.getValue());
+            InteractionMarker interactionMarker = new InteractionMarker(0, 0, activityBox.getValue(), locationBox.getValue(), metActivityBox.getValue(), metLocationBox.getValue());
+            interactionMarker.setType(interactionTypeBox.getValue());
+            marker = interactionMarker;
         }
         else {
             marker = new Marker(0, 0, activityBox.getValue(), locationBox.getValue());

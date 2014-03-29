@@ -26,8 +26,6 @@ import jfxtras.labs.dialogs.MonologFX;
 import jfxtras.labs.dialogs.MonologFXButton;
 import org.samcrow.frameviewer.io3.Marker;
 import org.samcrow.frameviewer.io3.PersistentFrameDataStore;
-import org.samcrow.frameviewer.ui.DraggableNode;
-import org.samcrow.frameviewer.ui.MarkerTypePane;
 import org.samcrow.frameviewer.ui.SaveDialog;
 
 /**
@@ -116,13 +114,9 @@ public class App extends Application {
             PlaybackControlPane controls = new PlaybackControlPane(model);
             box.getChildren().add(controls);
 
-            //Draggable marker types overlay
-            final DraggableNode draggable = new DraggableNode();
-            draggable.getChildren().add(new MarkerTypePane());
-            
             //Assemble the root StackPane
             StackPane root = new StackPane();
-            root.getChildren().addAll(box, draggable);
+            root.getChildren().add(box);
 
             stage.setTitle("Frame Viewer");
             Scene scene = new Scene(root);

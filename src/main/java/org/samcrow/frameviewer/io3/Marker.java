@@ -154,7 +154,7 @@ public class Marker extends FrameObject {
      * subclass InteractionMarker.
      */
     public static String fileHeader() {
-        return "Ant,Frame,X,Y,Focus Ant Activity,Focus Ant Location,Tracked Ant Activity,Tracked Ant Location";
+        return "Ant,Frame,X,Y,Focus Ant Activity,Focus Ant Location,Interaction Type,Tracked Ant Activity,Tracked Ant Location";
     }
     
     public String toCSVLine() {
@@ -171,8 +171,8 @@ public class Marker extends FrameObject {
         buffer.append(focusAntActivity.toString());
         buffer.append(',');
         buffer.append(focusAntLocation.toString());
-        // Last two fields empty for the tracked ant activity and location
-        buffer.append(",,");
+        // Last three fields empty for the interaction type and tracked ant activity and location
+        buffer.append(",,,");
         
         return buffer.toString();
     }
