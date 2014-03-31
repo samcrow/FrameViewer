@@ -43,9 +43,16 @@ public class FrameDataStore<T extends FrameObject> extends ObservableValueBase<F
      * @param other 
      */
     public FrameDataStore(FrameDataStore<? extends T> other) {
+        // Ensure sufficient space in the frame list
+        fillList(other.getList().size());
         int frame = 0;
         for(List<? extends T> frameMarkers : other.getList()) {
-            setFrameData(frame, new LinkedList<>(frameMarkers));
+            if(frameMarkers != null) {
+                setFrameData(frame, new LinkedList<>(frameMarkers));
+            }
+            else {
+                setFrameData(frame, new LinkedList<T>());
+            }
             
             frame++;
         }

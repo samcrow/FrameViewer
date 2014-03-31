@@ -187,7 +187,7 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
     private static int getVersion(String versionLine) {
         final Pattern versionPattern = Pattern.compile("File version,\\s*([0-9]+)");
         Matcher match = versionPattern.matcher(versionLine);
-        if(!match.matches() || match.groupCount() != 1) {
+        if(!match.find() || match.groupCount() != 1) {
             throw new IllegalArgumentException("Version line \""+versionLine+"\" did not match the expected format");
         }
         

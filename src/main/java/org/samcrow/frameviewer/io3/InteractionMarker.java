@@ -77,6 +77,32 @@ public class InteractionMarker extends Marker {
         this.type = type;
     }
 
+    public AntActivity getMetAntActivity() {
+        return metAntActivity;
+    }
+
+    public AntLocation getMetAntLocation() {
+        return metAntLocation;
+    }
+    
+    /**
+     * Copies all the attributes of another marker
+     * to this marker.
+     * 
+     * Warning: This method is not safe when working with subclasses.
+     * If this method is called on an object that is actually
+     * a subclass of InteractionMarker, the subclass's set() method will not be called
+     * and its subclass properties will not be set.
+     * 
+     * @param other 
+     */
+    public void set(InteractionMarker other) {
+        super.set(other);
+        type = other.type;
+        metAntActivity = other.metAntActivity;
+        metAntLocation = other.metAntLocation;
+    }
+
     @Override
     public String toCSVLine() {
         StringBuilder buffer = new StringBuilder();

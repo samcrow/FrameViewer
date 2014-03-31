@@ -143,6 +143,27 @@ public class Marker extends FrameObject {
         x = (int) Math.round(position.getX());
         y = (int) Math.round(position.getY());
     }
+    
+    /**
+     * Copies all the attributes of another marker
+     * to this marker.
+     * 
+     * Warning: This method is not safe when working with subclasses.
+     * If this method is called on an object that is actually
+     * a subclass of Marker, the subclass's set() method will not be called
+     * and its subclass properties will not be set.
+     * 
+     * @param other 
+     */
+    public void set(Marker other) {
+        x = other.getX();
+        y = other.getY();
+        color = other.color;
+        graphic = other.graphic;
+        antId = other.antId;
+        focusAntActivity = other.focusAntActivity;
+        focusAntLocation = other.focusAntLocation;
+    }
 
     // File-related things
     

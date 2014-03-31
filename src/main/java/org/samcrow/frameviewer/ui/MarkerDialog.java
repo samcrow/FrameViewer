@@ -1,9 +1,12 @@
 package org.samcrow.frameviewer.ui;
 
+import java.util.ListIterator;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -22,10 +25,11 @@ import org.samcrow.frameviewer.io3.InteractionMarker;
 import org.samcrow.frameviewer.io3.Marker;
 
 /**
- * A dialog that asks the user to enter an ant ID
+ * A dialog that asks the user to marker information or allows the user to
+ * edit an existing marker
  * @author Sam Crow
  */
-public class AntIdDialog extends Stage {
+public class MarkerDialog extends Stage {
     
     /**
      * The last ant ID that was entered. This is used to suggest a new ant ID.
@@ -38,25 +42,26 @@ public class AntIdDialog extends Stage {
     private static AntActivity lastMetActivity = AntActivity.Unknown;
     private static AntLocation lastMetLocation = AntLocation.Unknown;
     
-    private boolean succeeded = false;
+    protected boolean succeeded = false;
 
-    private final IntegerField antIdField = new IntegerField();
+    protected final IntegerField antIdField = new IntegerField();
     
-    private final ChoiceBox<AntActivity> activityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
-    private final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    protected final ChoiceBox<AntActivity> activityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
+    protected final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
     
-    private final CheckBox interactionBox = new CheckBox("Interaction");
-    private final ChoiceBox<InteractionMarker.InteractionType> interactionTypeBox
+    protected final CheckBox interactionBox = new CheckBox("Interaction");
+    protected final ChoiceBox<InteractionMarker.InteractionType> interactionTypeBox
             = new ChoiceBox<>(FXCollections.observableArrayList(InteractionMarker.InteractionType.values()));
-    private final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
-    private final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    protected final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
+    protected final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    
+
+    private final VBox root = new VBox();
+
+    private static final Insets PADDING = new Insets(10);
     
     
-    public AntIdDialog(Window parent) {
-        
-        final Insets PADDING = new Insets(10);
-        
-        VBox root = new VBox();
+    public MarkerDialog(Window parent) {
         
         GridPane topBox = new GridPane();
         {
@@ -152,7 +157,7 @@ public class AntIdDialog extends Stage {
         metLocationBox.getSelectionModel().select(lastMetLocation);
         
         
-        setTitle("Enter marker info");
+        setTitle("New marker");
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         initStyle(StageStyle.UTILITY);
@@ -165,7 +170,7 @@ public class AntIdDialog extends Stage {
     /**
      * Saves the current form values in static fields for later access
      */
-    private void saveValues() {
+    protected void saveValues() {
         
         lastAntId = antIdField.getValue();
         lastActivity = activityBox.getValue();
@@ -181,7 +186,7 @@ public class AntIdDialog extends Stage {
      * @return A Marker, created based on the user's selections. Its X and Y
      * values will be set to zero.
      */
-    public Marker getSelectedMarker() {
+    public Marker createMarker() {
         Marker marker;
         if(interactionBox.isSelected()) {
             InteractionMarker interactionMarker = new InteractionMarker(0, 0, activityBox.getValue(), locationBox.getValue(), metActivityBox.getValue(), metLocationBox.getValue());
@@ -201,5 +206,19 @@ public class AntIdDialog extends Stage {
      */
     public boolean success() {
         return succeeded;
+    }
+    
+    /**
+     * Adds a node to this window, below the controls and above the OK/cancel
+     * buttons.
+     * @param node 
+     */
+    protected void insertNode(Node node) {
+        ObservableList<Node> children = root.getChildren();
+        // Get an iterator with a cursor just before the last element
+        ListIterator<Node> iterator = children.listIterator(children.size() - 1);
+        // Insert just before the last element
+        iterator.add(node);
+        VBox.setMargin(node, PADDING);
     }
 }

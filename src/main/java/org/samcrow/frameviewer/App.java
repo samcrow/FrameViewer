@@ -1,11 +1,11 @@
 package org.samcrow.frameviewer;
 
+import java.io.ByteArrayOutputStream;
 import org.samcrow.frameviewer.ui.CanvasPane;
 import org.samcrow.frameviewer.ui.FrameCanvas;
 import org.samcrow.frameviewer.ui.PlaybackControlPane;
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
+import java.io.PrintStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -72,15 +72,8 @@ public class App extends Application {
                         //Don't save; allow close
                     }
                     else {
-                        try {
-                            //Save the file
-                            saveFile();
-                        }
-                        catch (IOException ex) {
-                            //Save failed
-                            //Cancel close
-                            event.consume();
-                        }
+                        saveFile();
+
                     }
                 }
             }
@@ -88,22 +81,35 @@ public class App extends Application {
 
         try {
 
-            DirectoryChooser chooser = new DirectoryChooser();
-            chooser.setTitle("Choose a directory with images to process");
-            File frameDir = chooser.showDialog(stage);
+            
+            // Check for command-line frame directory
+            File frameDir;
+            if(getParameters().getNamed().containsKey("frame-directory")) {
+                frameDir = new File(getParameters().getNamed().get("frame-directory"));
+                if(!frameDir.isDirectory()) {
+                    throw new IllegalArgumentException("The provided image directory path must be a folder");
+                }
+            }
+            else {
+                DirectoryChooser chooser = new DirectoryChooser();
+                chooser.setTitle("Choose a directory with images to process");
+                frameDir = chooser.showDialog(stage);
+            }
+            // Exit if no directory selected
+            if(frameDir == null) {
+                stop();
+            }
 
             VBox box = new VBox();
-            
+
             MenuBar bar = createMenuBar();
             bar.setUseSystemMenuBar(true);
             box.getChildren().add(bar);
-
 
             dataStore = new PersistentFrameDataStore<>();
             saveController = new SaveStatusController(dataStore);
             FrameFinder finder = new FrameFinder(frameDir);
             model = new DataStoringPlaybackControlModel(finder, dataStore);
-            
 
             FrameCanvas canvas = new FrameCanvas();
             canvas.imageProperty().bind(model.currentFrameImageProperty());
@@ -120,11 +126,19 @@ public class App extends Application {
 
             stage.setTitle("Frame Viewer");
             Scene scene = new Scene(root);
-            
+
             controls.setupAccelerators();
-            
+
             stage.setScene(scene);
             stage.show();
+            
+            // Check for a command-line argument specifying a file to open
+            if(getParameters().getNamed().containsKey("open-file")) {
+                lastOpenedFile = new File(getParameters().getNamed().get("open-file"));
+
+                dataStore = PersistentFrameDataStore.readFromFile(lastOpenedFile);
+                model.setDataStore(dataStore);
+            }
 
         }
         catch (Exception ex) {
@@ -147,15 +161,10 @@ public class App extends Application {
         saveItem.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
-                try {
-                    saveFile();
-                }
-                catch (IOException ex) {
-                    
-                }
+                saveFile();
             }
         });
-        
+
         final MenuItem openItem = new MenuItem("Open...");
         openItem.setAccelerator(KeyCombination.keyCombination("Shortcut+O"));
         openItem.setOnAction(new EventHandler<ActionEvent>() {
@@ -166,7 +175,7 @@ public class App extends Application {
         });
 
         fileMenu.getItems().addAll(openItem, saveItem);
-        
+
         bar.getMenus().add(fileMenu);
 
         final Menu editMenu = new Menu("Edit");
@@ -178,16 +187,16 @@ public class App extends Application {
                 model.undo();
             }
         });
-        
+
         editMenu.getItems().add(undoItem);
         bar.getMenus().add(editMenu);
-        
+
         return bar;
     }
 
-    private void saveFile() throws IOException {
+    private void saveFile() {
         model.syncCurrentFrameData();
-        
+
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
         if (lastOpenedFile != null) {
@@ -198,40 +207,52 @@ public class App extends Application {
             dataStore.writeTo(saveFile);
             saveController.markSaved();
         }
-        catch (IOException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-            MonologFX errDialog = new MonologFX(MonologFX.Type.ERROR);
-            errDialog.setModal(true);
-            errDialog.initOwner(stage);
-            errDialog.setTitleText("Save failed");
-            errDialog.setMessage(ex.getLocalizedMessage());
-
-            errDialog.showDialog();
-            
-            throw ex;
+        catch (Exception ex) {
+            showExceptionDialog(ex, "Could not save file");
         }
     }
-    
+
     private void openFile() {
         try {
             FileChooser chooser = new FileChooser();
             chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV files", "*.csv"));
-            
+
             lastOpenedFile = chooser.showOpenDialog(stage);
-            
+
             dataStore = PersistentFrameDataStore.readFromFile(lastOpenedFile);
             model.setDataStore(dataStore);
         }
-        catch (IOException | ParseException | IllegalStateException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-            MonologFX errDialog = new MonologFX(MonologFX.Type.ERROR);
-            errDialog.setModal(true);
-            errDialog.initOwner(stage);
-            errDialog.setTitleText("Open failed");
-            errDialog.setMessage(ex.getLocalizedMessage());
-
-            errDialog.showDialog();
+        catch (Exception ex) {
+            showExceptionDialog(ex, "Could not open file");
         }
+    }
+
+    private void showExceptionDialog(Exception ex) {
+        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        MonologFX errDialog = new MonologFX(MonologFX.Type.ERROR);
+        errDialog.setModal(true);
+        errDialog.initOwner(stage);
+        errDialog.setTitleText("Error");
+        errDialog.setMessage(ex.getLocalizedMessage() + '\n' + getStackTrace(ex));
+
+        errDialog.showDialog();
+    }
+
+    private void showExceptionDialog(Exception ex, String title) {
+        Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+        MonologFX errDialog = new MonologFX(MonologFX.Type.ERROR);
+        errDialog.setModal(true);
+        errDialog.initOwner(stage);
+        errDialog.setTitleText(title);
+        errDialog.setMessage(ex.getLocalizedMessage() + '\n' + getStackTrace(ex));
+
+        errDialog.showDialog();
+    }
+
+    private static String getStackTrace(Exception ex) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ex.printStackTrace(new PrintStream(stream));
+        return stream.toString();
     }
 
     @Override
