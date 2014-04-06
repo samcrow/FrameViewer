@@ -130,10 +130,10 @@ public class PersistentFrameDataStore2to3 <T extends Marker> extends FrameDataSt
             case Carrying:
                 return new InteractionMarker(x, y, AntActivity.Unknown, AntLocation.Unknown, AntActivity.CarryingUnkown, AntLocation.Unknown);
             case Standing:
-                return new InteractionMarker(x, y, AntActivity.Unknown, AntLocation.Unknown, AntActivity.Unknown, AntLocation.ReturningToNest);
+                return new InteractionMarker(x, y, AntActivity.Unknown, AntLocation.Unknown, AntActivity.StandingStill, AntLocation.Unknown);
                 
             case Unknown:
-                return new Marker(x, y, AntActivity.Unknown, AntLocation.Unknown);
+                return new InteractionMarker(x, y, AntActivity.Unknown, AntLocation.Unknown, AntActivity.Unknown, AntLocation.Unknown);
                 
                 // Non-interaction types
             case Tracking:
