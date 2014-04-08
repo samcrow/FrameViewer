@@ -175,7 +175,7 @@ public class Marker extends FrameObject {
      * subclass InteractionMarker.
      */
     public static String fileHeader() {
-        return "Ant,Frame,X,Y,Focus Ant Activity,Focus Ant Location,Interaction Type,Tracked Ant Activity,Tracked Ant Location";
+        return "Ant,Frame,X,Y,Focus Ant Activity,Focus Ant Location,Interaction Type,Ant Met Activity,Ant Met Location";
     }
     
     public String toCSVLine() {
