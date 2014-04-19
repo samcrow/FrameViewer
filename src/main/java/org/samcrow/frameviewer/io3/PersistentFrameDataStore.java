@@ -157,7 +157,7 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                             InteractionMarker.InteractionType type = InteractionMarker.InteractionType.valueOf(matcher.group("interactionType"));
                             
                             InteractionMarker interactionMarker = new InteractionMarker(x, y, focusAntActivity, focusAntLocation, trackedAntActivity, trackedAntLocation);
-                            interactionMarker.setAntId(antId);
+                            
                             interactionMarker.setType(type);
                             
                             marker = interactionMarker;
@@ -166,6 +166,8 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                             // Not an interaction marker
                             marker = new Marker(x, y, focusAntActivity, focusAntLocation);
                         }
+                        
+                        marker.setAntId(antId);
                         marker.setFrame(frame);
                         
                         instance.getFrameData(frame).add(marker);
