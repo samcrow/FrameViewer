@@ -78,7 +78,9 @@ public class MarkerDialog extends Stage {
             antIdField.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent t) {
+                    antIdField.setFieldFocused(false);
                     succeeded = true;
+                    saveValues();
                     close();
                 }
             });

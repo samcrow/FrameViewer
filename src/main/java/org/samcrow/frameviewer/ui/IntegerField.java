@@ -93,7 +93,11 @@ public class IntegerField extends TextField {
         value.set(newValue);
     }
     
-    final IntegerProperty valueProperty() {
+    public final IntegerProperty valueProperty() {
         return value;
+    }
+    
+    public void setFieldFocused(boolean focused) {
+        setFocused(focused);
     }
 }
