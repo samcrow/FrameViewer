@@ -31,7 +31,7 @@ public class InteractionMarker extends Marker {
         Unknown,
         ;
         
-        String shortName = null;
+        private String shortName = null;
         private InteractionType() {}
         private InteractionType(String shortName) {
             this.shortName = shortName;
@@ -47,8 +47,19 @@ public class InteractionMarker extends Marker {
         }
     }
     
+    /**
+     * The activity of the ant that was met
+     */
     private AntActivity metAntActivity;
+    /**
+     * The location of the ant that was met
+     */
     private AntLocation metAntLocation;
+    
+    /**
+     * The ID number of the ant that was met
+     */
+    private int metAntId;
     
     private InteractionType type = InteractionType.Unknown;
 
@@ -83,6 +94,22 @@ public class InteractionMarker extends Marker {
 
     public AntLocation getMetAntLocation() {
         return metAntLocation;
+    }
+
+    /**
+     * 
+     * @return The ID number of the ant that was met
+     */
+    public int getMetAntId() {
+        return metAntId;
+    }
+
+    /**
+     * Sets the ID of the ant that was met
+     * @param metAntId 
+     */
+    public void setMetAntId(int metAntId) {
+        this.metAntId = metAntId;
     }
     
     /**
@@ -125,6 +152,8 @@ public class InteractionMarker extends Marker {
         buffer.append(metAntActivity.toString());
         buffer.append(',');
         buffer.append(metAntLocation.toString());
+        buffer.append(',');
+        buffer.append(metAntId);
         
         return buffer.toString();
     }

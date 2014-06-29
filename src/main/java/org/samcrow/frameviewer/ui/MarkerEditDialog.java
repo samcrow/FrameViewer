@@ -33,6 +33,7 @@ public class MarkerEditDialog extends MarkerDialog {
         if(markerToEdit instanceof InteractionMarker) {
             InteractionMarker iMarker = (InteractionMarker) markerToEdit;
             interactionBox.setSelected(true);
+            metAntIdField.setValue(iMarker.getMetAntId());
             interactionTypeBox.setValue(iMarker.getType());
             metActivityBox.setValue(iMarker.getMetAntActivity());
             metLocationBox.setValue(iMarker.getMetAntLocation());

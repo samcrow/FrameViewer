@@ -22,7 +22,7 @@ import org.samcrow.frameviewer.FrameDataStore;
  * @param <T> The type of data to store. This must be an instance of
  * List&lt;Marker&gt;.
  */
-public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<T> {
+public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T> {
 
     /**
      * Writes this data store to a CSV file
@@ -47,7 +47,7 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
         final List<T> outerList = new LinkedList<>();
         final List<List<T>> composite = getList();
         for (List<T> subList : composite) {
-            if(subList != null) {
+            if (subList != null) {
                 for (T value : subList) {
                     outerList.add(value);
                 }
@@ -65,10 +65,10 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                 }
                 else {
                     //Ant IDs are the same; now compare frames
-                    if(marker1.getFrame() < marker2.getFrame()) {
+                    if (marker1.getFrame() < marker2.getFrame()) {
                         return -1;
                     }
-                    else if(marker1.getFrame() > marker2.getFrame()) {
+                    else if (marker1.getFrame() > marker2.getFrame()) {
                         return 1;
                     }
                     else {
@@ -110,10 +110,10 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
             //Read and interpret version line
             try {
                 int version = getVersion(reader.readLine());
-                
+
                 // Check version
-                if(version != 3) {
-                    throw new ParseException("Invalid version number "+version, 0);
+                if (version != 3) {
+                    throw new ParseException("Invalid version number " + version, 0);
                 }
             }
             catch (IllegalArgumentException ex) {
@@ -122,11 +122,11 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                 reader.close();
                 return new PersistentFrameDataStore<>(PersistentFrameDataStore2to3.readFromFile(file));
             }
-            
+
             // Read and ignore header
             reader.readLine();
 
-            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*)*$");
+            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<metAntId>\\d+)$");
 
             while (true) {
                 String line = reader.readLine();
@@ -146,30 +146,31 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
 
                         AntActivity focusAntActivity = AntActivity.valueOf(matcher.group("focusAntActivity"));
                         AntLocation focusAntLocation = AntLocation.valueOf(matcher.group("focusAntLocation"));
-                        
+
                         Marker marker;
                         // Check for tracked ant activity and location
                         String trackedAntActivityString = matcher.group("trackedAntActivity");
-                        if(trackedAntActivityString != null && !trackedAntActivityString.isEmpty()) {
+                        if (trackedAntActivityString != null && !trackedAntActivityString.isEmpty()) {
                             // Marker is an interaction marker
                             AntActivity trackedAntActivity = AntActivity.valueOf(trackedAntActivityString);
                             AntLocation trackedAntLocation = AntLocation.valueOf(matcher.group("trackedAntLocation"));
                             InteractionMarker.InteractionType type = InteractionMarker.InteractionType.valueOf(matcher.group("interactionType"));
-                            
+
                             InteractionMarker interactionMarker = new InteractionMarker(x, y, focusAntActivity, focusAntLocation, trackedAntActivity, trackedAntLocation);
-                            
+
                             interactionMarker.setType(type);
-                            
+                            interactionMarker.setMetAntId(Integer.parseInt(matcher.group("metAntId")));
+
                             marker = interactionMarker;
                         }
                         else {
                             // Not an interaction marker
                             marker = new Marker(x, y, focusAntActivity, focusAntLocation);
                         }
-                        
+
                         marker.setAntId(antId);
                         marker.setFrame(frame);
-                        
+
                         instance.getFrameData(frame).add(marker);
 
                     }
@@ -177,6 +178,60 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
                         ParseException parseEx = new ParseException("Unrecognized marker or in line \"" + line + "\"", 0);
                         parseEx.initCause(ex);
                         throw parseEx;
+                    }
+                }
+                else {
+                    // No match. Try the old regex, which does not include the met ant ID
+                    final Pattern oldLinePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*)*$");
+
+                    Matcher oldMatcher = oldLinePattern.matcher(line);
+                    if (oldMatcher.matches()) {
+
+                        try {
+
+                            int antId = Integer.valueOf(oldMatcher.group("ant"));
+                            int frame = Integer.valueOf(oldMatcher.group("frame"));
+                            int x = Integer.valueOf(oldMatcher.group("x"));
+                            int y = Integer.valueOf(oldMatcher.group("y"));
+
+                            AntActivity focusAntActivity = AntActivity.valueOf(oldMatcher.group("focusAntActivity"));
+                            AntLocation focusAntLocation = AntLocation.valueOf(oldMatcher.group("focusAntLocation"));
+
+                            Marker marker;
+                            // Check for tracked ant activity and location
+                            String trackedAntActivityString = oldMatcher.group("trackedAntActivity");
+                            if (trackedAntActivityString != null && !trackedAntActivityString.isEmpty()) {
+                                // Marker is an interaction marker
+                                AntActivity trackedAntActivity = AntActivity.valueOf(trackedAntActivityString);
+                                AntLocation trackedAntLocation = AntLocation.valueOf(oldMatcher.group("trackedAntLocation"));
+                                InteractionMarker.InteractionType type = InteractionMarker.InteractionType.valueOf(oldMatcher.group("interactionType"));
+
+                                InteractionMarker interactionMarker = new InteractionMarker(x, y, focusAntActivity, focusAntLocation, trackedAntActivity, trackedAntLocation);
+
+                                interactionMarker.setType(type);
+
+                                marker = interactionMarker;
+                            }
+                            else {
+                                // Not an interaction marker
+                                marker = new Marker(x, y, focusAntActivity, focusAntLocation);
+                            }
+
+                            marker.setAntId(antId);
+                            marker.setFrame(frame);
+
+                            instance.getFrameData(frame).add(marker);
+
+                        }
+                        catch (IllegalArgumentException ex) {
+                            ParseException parseEx = new ParseException("Unrecognized marker or in line \"" + line + "\"", 0);
+                            parseEx.initCause(ex);
+                            throw parseEx;
+                        }
+
+                    }
+                    else {
+                        throw new ParseException("Unrecognized line \"" + line + "\"", 0);
                     }
                 }
             }
@@ -189,21 +244,24 @@ public class PersistentFrameDataStore <T extends Marker> extends FrameDataStore<
     private static int getVersion(String versionLine) {
         final Pattern versionPattern = Pattern.compile("File version,\\s*([0-9]+)");
         Matcher match = versionPattern.matcher(versionLine);
-        if(!match.find() || match.groupCount() != 1) {
-            throw new IllegalArgumentException("Version line \""+versionLine+"\" did not match the expected format");
+        if (!match.find() || match.groupCount() != 1) {
+            throw new IllegalArgumentException("Version line \"" + versionLine + "\" did not match the expected format");
         }
-        
+
         return Integer.valueOf(match.group(1));
     }
-    
+
     public PersistentFrameDataStore() {
-        
+
     }
+
     /**
      * Copies the markers from another frame data store.
+     * <p>
      * @param other
      */
     public PersistentFrameDataStore(PersistentFrameDataStore2to3<T> other) {
         super(other);
     }
+
 }

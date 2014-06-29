@@ -38,6 +38,7 @@ public class MarkerDialog extends Stage {
     private static AntActivity lastActivity = AntActivity.Unknown;
     private static AntLocation lastLocation = AntLocation.Unknown;
     private static boolean lastIsInteraction = false;
+    private static int lastMetAntId = 0;
     private static InteractionMarker.InteractionType lastInteractionType = InteractionMarker.InteractionType.Unknown;
     private static AntActivity lastMetActivity = AntActivity.Unknown;
     private static AntLocation lastMetLocation = AntLocation.Unknown;
@@ -52,9 +53,11 @@ public class MarkerDialog extends Stage {
     
     protected final CheckBox interactionBox = new CheckBox("Interaction");
     
-    
     protected final RadioButtonGroup<InteractionMarker.InteractionType> interactionTypeBox
             = new RadioButtonGroup<>(InteractionMarker.InteractionType.values());
+    
+    protected final IntegerField metAntIdField = new IntegerField(0);
+    
     protected final RadioButtonGroup<AntActivity> metActivityBox = new RadioButtonGroup<>(AntActivity.values());
     protected final RadioButtonGroup<AntLocation> metLocationBox = new RadioButtonGroup<>(AntLocation.values());
     
@@ -100,9 +103,13 @@ public class MarkerDialog extends Stage {
             GridPane.setMargin(interactionTypeBox, PADDING);
             
             Label metLabel = new Label("Met ant:");
-            topBox.add(metLabel, 0, 4, 2, 1);
+            topBox.add(metLabel, 0, 4, 1, 1);
             GridPane.setMargin(metLabel, PADDING);
             metLabel.disableProperty().bind(interactionBox.selectedProperty().not());
+            
+            // Met ant ID field
+            topBox.add(metAntIdField, 1, 4, 1, 1);
+            GridPane.setMargin(metAntIdField, PADDING);
             
             topBox.add(metActivityBox, 0, 5, 2, 1);
             GridPane.setMargin(metActivityBox, PADDING);
@@ -148,6 +155,7 @@ public class MarkerDialog extends Stage {
         // Bind checkbox to met ant enable/disable
         metActivityBox.disableProperty().bind(interactionBox.selectedProperty().not());
         metLocationBox.disableProperty().bind(interactionBox.selectedProperty().not());
+        metAntIdField.disableProperty().bind(interactionBox.selectedProperty().not());
         interactionTypeBox.disableProperty().bind(interactionBox.selectedProperty().not());
         
         // Fill in initial values for fields
@@ -156,6 +164,7 @@ public class MarkerDialog extends Stage {
         locationBox.setValue(lastLocation);
         interactionBox.setSelected(lastIsInteraction);
         interactionTypeBox.setValue(lastInteractionType);
+        metAntIdField.setValue(lastMetAntId);
         metActivityBox.setValue(lastMetActivity);
         metLocationBox.setValue(lastMetLocation);
         
@@ -179,6 +188,7 @@ public class MarkerDialog extends Stage {
         lastActivity = activityBox.getValue();
         lastLocation = locationBox.getValue();
         lastIsInteraction = interactionBox.isSelected();
+        lastMetAntId = metAntIdField.getValue();
         lastInteractionType = interactionTypeBox.getValue();
         lastMetActivity = metActivityBox.getValue();
         lastMetLocation = metLocationBox.getValue();
@@ -194,6 +204,7 @@ public class MarkerDialog extends Stage {
         if(interactionBox.isSelected()) {
             InteractionMarker interactionMarker = new InteractionMarker(0, 0, activityBox.getValue(), locationBox.getValue(), metActivityBox.getValue(), metLocationBox.getValue());
             interactionMarker.setType(interactionTypeBox.getValue());
+            interactionMarker.setMetAntId(metAntIdField.getValue());
             marker = interactionMarker;
         }
         else {
