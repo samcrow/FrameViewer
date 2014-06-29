@@ -2,11 +2,11 @@ FrameViewer changes:
 Marker types: Change from selection box to radio buttons √
 
 Marker keyboard shortcuts as specified in document attached to E-mail message
-Shortcut -> 1-step set up marker with no dialog
+Shortcut -> 1-step set up marker with no dialog √
 
 For marker interactions, add a field for the ID of the ant that was met √
 
-Fix issue when the ant ID in the marker dialog is not always recalled
+Fix issue when the ant ID in the marker dialog is not always recalled √
 
 Fix issue of files on Windows not being saved as .csv
 

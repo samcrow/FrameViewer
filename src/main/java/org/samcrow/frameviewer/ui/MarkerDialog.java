@@ -231,6 +231,10 @@ public class MarkerDialog extends Stage {
         interactionBox.setSelected(isInteraction);
     }
     
+    public static int getLastAntId() {
+        return lastAntId;
+    }
+    
     /**
      * Adds a node to this window, below the controls and above the OK/cancel
      * buttons.

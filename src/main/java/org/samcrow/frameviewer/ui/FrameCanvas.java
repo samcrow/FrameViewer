@@ -11,10 +11,14 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import org.samcrow.frameviewer.io3.Marker;
 import org.samcrow.frameviewer.PaintableCanvas;
+import org.samcrow.frameviewer.io3.AntActivity;
+import org.samcrow.frameviewer.io3.AntLocation;
+import org.samcrow.frameviewer.io3.InteractionMarker;
 
 /**
  * Displays a video frame and allows it to be clicked on
@@ -54,6 +58,8 @@ public class FrameCanvas extends PaintableCanvas {
      * Local coordinate displayed width of the frame
      */
     private double imageHeight;
+
+    private MouseEvent lastMouseMove;
 
     public FrameCanvas() {
 
@@ -110,11 +116,10 @@ public class FrameCanvas extends PaintableCanvas {
 
                     //Ask the user for a marker type
                     MarkerDialog dialog = new MarkerDialog(getScene().getWindow());
-                    
+
                     // If the user right-clicked, set up for an interaction
                     dialog.setIsInteraction(event.getButton() == MouseButton.SECONDARY);
-                    
-                    
+
                     //Move the dialog to the position of the cursor
                     dialog.setX(event.getScreenX());
                     dialog.setY(event.getScreenY());
@@ -144,7 +149,27 @@ public class FrameCanvas extends PaintableCanvas {
         setOnMouseMoved(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                lastMouseMove = event;
                 requestFocus();
+            }
+        });
+
+        setOnKeyTyped(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+
+                // Get the in-frame position based on the last mouse move
+                if (lastMouseMove == null) {
+                    return;
+                }
+                try {
+                    getMarkers().add(createMarkerFromKey(lastMouseMove, event));
+                    repaint();
+                }
+                catch (NotInFrameException | IllegalArgumentException ex) {
+
+                }
+
             }
         });
 
@@ -217,6 +242,40 @@ public class FrameCanvas extends PaintableCanvas {
 
     }
 
+    private Marker createMarkerFromKey(MouseEvent location, KeyEvent keyEvent) throws NotInFrameException {
+        Point2D screenPos = getFrameLocation(location);
+        if (keyEvent.getCharacter().equals("a")) {
+            // Interaction: entrance chamber, both ants walking and 2 way interaction
+            InteractionMarker marker = new InteractionMarker(screenPos, AntActivity.Walking, AntLocation.EntranceChamber, AntActivity.Walking, AntLocation.EntranceChamber);
+            marker.setType(InteractionMarker.InteractionType.TwoWay);
+            marker.setAntId(MarkerDialog.getLastAntId());
+
+            return marker;
+        }
+        else if (keyEvent.getCharacter().equals("s")) {
+            // Not an interaction: Focal ant, walking, exit
+            Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.AtExit);
+            marker.setAntId(MarkerDialog.getLastAntId());
+            return marker;
+        }
+        else if (keyEvent.getCharacter().equals("d")) {
+            // Not an interaction: Focal ant, walking, entrance chamber
+            Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.EntranceChamber);
+            marker.setAntId(MarkerDialog.getLastAntId());
+            return marker;
+        }
+        else if (keyEvent.getCharacter().equals("f")) {
+            // Not an interaction: Focal ant, walking, tunnel
+            Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.AtTunnel);
+            marker.setAntId(MarkerDialog.getLastAntId());
+            return marker;
+        }
+        else {
+            throw new IllegalArgumentException("No marker default corresponding to this key");
+        }
+
+    }
+
     /**
      * Returns the location, in frame image coordinates, of a mouse event
      * <p>
@@ -257,6 +316,7 @@ public class FrameCanvas extends PaintableCanvas {
     private boolean markerClicked(Marker marker, Point2D frameLocation) {
         final int radius = 6;
         return radius >= frameLocation.distance(marker.getX(), marker.getY());
+
     }
 
     /**
