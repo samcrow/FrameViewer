@@ -46,14 +46,17 @@ public class MarkerDialog extends Stage {
 
     protected final IntegerField antIdField = new IntegerField();
     
-    protected final ChoiceBox<AntActivity> activityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
-    protected final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    protected final RadioButtonGroup<AntActivity> activityBox = new RadioButtonGroup<>(AntActivity.values());
+
+    protected final RadioButtonGroup<AntLocation> locationBox = new RadioButtonGroup<>(AntLocation.values());
     
     protected final CheckBox interactionBox = new CheckBox("Interaction");
-    protected final ChoiceBox<InteractionMarker.InteractionType> interactionTypeBox
-            = new ChoiceBox<>(FXCollections.observableArrayList(InteractionMarker.InteractionType.values()));
-    protected final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
-    protected final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
+    
+    
+    protected final RadioButtonGroup<InteractionMarker.InteractionType> interactionTypeBox
+            = new RadioButtonGroup<>(InteractionMarker.InteractionType.values());
+    protected final RadioButtonGroup<AntActivity> metActivityBox = new RadioButtonGroup<>(AntActivity.values());
+    protected final RadioButtonGroup<AntLocation> metLocationBox = new RadioButtonGroup<>(AntLocation.values());
     
 
     private final VBox root = new VBox();
@@ -149,12 +152,12 @@ public class MarkerDialog extends Stage {
         
         // Fill in initial values for fields
         antIdField.setValue(lastAntId);
-        activityBox.getSelectionModel().select(lastActivity);
-        locationBox.getSelectionModel().select(lastLocation);
+        activityBox.setValue(lastActivity);
+        locationBox.setValue(lastLocation);
         interactionBox.setSelected(lastIsInteraction);
         interactionTypeBox.setValue(lastInteractionType);
-        metActivityBox.getSelectionModel().select(lastMetActivity);
-        metLocationBox.getSelectionModel().select(lastMetLocation);
+        metActivityBox.setValue(lastMetActivity);
+        metLocationBox.setValue(lastMetLocation);
         
         
         setTitle("New marker");

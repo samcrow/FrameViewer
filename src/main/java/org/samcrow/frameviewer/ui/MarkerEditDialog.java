@@ -27,8 +27,8 @@ public class MarkerEditDialog extends MarkerDialog {
         super(parent);
         
         antIdField.setValue(markerToEdit.getAntId());
-        activityBox.getSelectionModel().select(markerToEdit.getFocusAntActivity());
-        locationBox.getSelectionModel().select(markerToEdit.getFocusAntLocation());
+        activityBox.setValue(markerToEdit.getFocusAntActivity());
+        locationBox.setValue(markerToEdit.getFocusAntLocation());
         
         if(markerToEdit instanceof InteractionMarker) {
             InteractionMarker iMarker = (InteractionMarker) markerToEdit;
