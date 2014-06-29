@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import org.samcrow.frameviewer.io3.Marker;
 import org.samcrow.frameviewer.PaintableCanvas;
@@ -109,6 +110,11 @@ public class FrameCanvas extends PaintableCanvas {
 
                     //Ask the user for a marker type
                     MarkerDialog dialog = new MarkerDialog(getScene().getWindow());
+                    
+                    // If the user right-clicked, set up for an interaction
+                    dialog.setIsInteraction(event.getButton() == MouseButton.SECONDARY);
+                    
+                    
                     //Move the dialog to the position of the cursor
                     dialog.setX(event.getScreenX());
                     dialog.setY(event.getScreenY());

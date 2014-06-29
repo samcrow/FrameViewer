@@ -1,7 +1,6 @@
 package org.samcrow.frameviewer.ui;
 
 import java.util.ListIterator;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,7 +9,6 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -220,6 +218,15 @@ public class MarkerDialog extends Stage {
      */
     public boolean success() {
         return succeeded;
+    }
+    
+    
+    /**
+     * Sets whether the dialog should be set up to record an interaction
+     * @param isInteraction 
+     */
+    public void setIsInteraction(boolean isInteraction) {
+        interactionBox.setSelected(isInteraction);
     }
     
     /**

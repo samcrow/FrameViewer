@@ -139,10 +139,10 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
 
                     try {
 
-                        int antId = Integer.valueOf(matcher.group("ant"));
-                        int frame = Integer.valueOf(matcher.group("frame"));
-                        int x = Integer.valueOf(matcher.group("x"));
-                        int y = Integer.valueOf(matcher.group("y"));
+                        int antId = Integer.parseInt(matcher.group("ant"));
+                        int frame = Integer.parseInt(matcher.group("frame"));
+                        int x = Integer.parseInt(matcher.group("x"));
+                        int y = Integer.parseInt(matcher.group("y"));
 
                         AntActivity focusAntActivity = AntActivity.valueOf(matcher.group("focusAntActivity"));
                         AntLocation focusAntLocation = AntLocation.valueOf(matcher.group("focusAntLocation"));
