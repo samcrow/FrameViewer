@@ -244,7 +244,7 @@ public class FrameCanvas extends PaintableCanvas {
 
     private Marker createMarkerFromKey(MouseEvent location, KeyEvent keyEvent) throws NotInFrameException {
         Point2D screenPos = getFrameLocation(location);
-        if (keyEvent.getCharacter().equals("a")) {
+        if (keyEvent.getCharacter().equals("i")) {
             // Interaction: entrance chamber, both ants walking and 2 way interaction
             InteractionMarker marker = new InteractionMarker(screenPos, AntActivity.Walking, AntLocation.EntranceChamber, AntActivity.Walking, AntLocation.EntranceChamber);
             marker.setType(InteractionMarker.InteractionType.TwoWay);
@@ -252,19 +252,19 @@ public class FrameCanvas extends PaintableCanvas {
 
             return marker;
         }
-        else if (keyEvent.getCharacter().equals("s")) {
+        else if (keyEvent.getCharacter().equals("x")) {
             // Not an interaction: Focal ant, walking, exit
             Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.AtExit);
             marker.setAntId(MarkerDialog.getLastAntId());
             return marker;
         }
-        else if (keyEvent.getCharacter().equals("d")) {
+        else if (keyEvent.getCharacter().equals("e")) {
             // Not an interaction: Focal ant, walking, entrance chamber
             Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.EntranceChamber);
             marker.setAntId(MarkerDialog.getLastAntId());
             return marker;
         }
-        else if (keyEvent.getCharacter().equals("f")) {
+        else if (keyEvent.getCharacter().equals("t")) {
             // Not an interaction: Focal ant, walking, tunnel
             Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.AtTunnel);
             marker.setAntId(MarkerDialog.getLastAntId());
