@@ -69,9 +69,6 @@ public class MarkerDialog extends Stage {
         
         GridPane topBox = new GridPane();
         {
-            final Label label = new Label("Focal ant:");
-            topBox.add(label, 0, 0);
-            GridPane.setMargin(label, PADDING);
             
             antIdField.setPrefColumnCount(4);
             //Close when the return key is pressed
@@ -85,39 +82,52 @@ public class MarkerDialog extends Stage {
                 }
             });
             
-            topBox.add(antIdField, 1, 0);
-            GridPane.setMargin(antIdField, PADDING);
+            GridPane focalAntPane = new GridPane();
+            {
+                final Label label = new Label("Focal ant:");
+                focalAntPane.add(label, 0, 0);
+                GridPane.setMargin(label, PADDING);
+                
+                focalAntPane.add(antIdField, 1, 0);
+                GridPane.setMargin(antIdField, PADDING);
+
+                // Focus ant activity and location
+                focalAntPane.add(activityBox, 0, 1, 2, 1);
+                GridPane.setMargin(activityBox, PADDING);
+
+                focalAntPane.add(locationBox, 0, 2, 2, 1);
+                GridPane.setMargin(locationBox, PADDING);
             
-            // Focus ant activity and location
-            topBox.add(activityBox, 0, 1, 2, 1);
-            GridPane.setMargin(activityBox, PADDING);
-            
-            topBox.add(locationBox, 0, 2, 2, 1);
-            GridPane.setMargin(locationBox, PADDING);
+            }
 
             // Checkbox and met ant selectors
-            topBox.add(interactionBox, 0, 3, 1, 1);
-            GridPane.setMargin(interactionBox, PADDING);
-            // Interaction type to the right of the checkbox
-            topBox.add(interactionTypeBox, 1, 3, 1, 1);
-            GridPane.setMargin(interactionTypeBox, PADDING);
+            GridPane metAntPane = new GridPane();
+            {
+                metAntPane.add(interactionBox, 0, 0, 1, 1);
+                GridPane.setMargin(interactionBox, PADDING);
+                // Interaction type to the right of the checkbox
+                metAntPane.add(interactionTypeBox, 1, 0, 1, 1);
+                GridPane.setMargin(interactionTypeBox, PADDING);
+
+                Label metLabel = new Label("Met ant:");
+                metAntPane.add(metLabel, 0, 1, 1, 1);
+                GridPane.setMargin(metLabel, PADDING);
+                metLabel.disableProperty().bind(interactionBox.selectedProperty().not());
+
+                // Met ant ID field
+                metAntPane.add(metAntIdField, 1, 1, 1, 1);
+                GridPane.setMargin(metAntIdField, PADDING);
+
+                metAntPane.add(metActivityBox, 0, 2, 2, 1);
+                GridPane.setMargin(metActivityBox, PADDING);
+
+                metAntPane.add(metLocationBox, 0, 3, 2, 1);
+                GridPane.setMargin(metLocationBox, PADDING);
             
-            Label metLabel = new Label("Met ant:");
-            topBox.add(metLabel, 0, 4, 1, 1);
-            GridPane.setMargin(metLabel, PADDING);
-            metLabel.disableProperty().bind(interactionBox.selectedProperty().not());
+            }
             
-            // Met ant ID field
-            topBox.add(metAntIdField, 1, 4, 1, 1);
-            GridPane.setMargin(metAntIdField, PADDING);
-            
-            topBox.add(metActivityBox, 0, 5, 2, 1);
-            GridPane.setMargin(metActivityBox, PADDING);
-            
-            topBox.add(metLocationBox, 0, 6, 2, 1);
-            GridPane.setMargin(metLocationBox, PADDING);
-            
-            
+            topBox.add(focalAntPane, 0, 0, 1, 1);
+            topBox.add(metAntPane, 1, 0, 1, 1);
             
         }
         root.getChildren().add(topBox);
