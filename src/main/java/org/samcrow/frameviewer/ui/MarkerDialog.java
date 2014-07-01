@@ -1,6 +1,7 @@
 package org.samcrow.frameviewer.ui;
 
 import java.util.ListIterator;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -9,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -45,19 +47,19 @@ public class MarkerDialog extends Stage {
 
     protected final IntegerField antIdField = new IntegerField();
     
-    protected final RadioButtonGroup<AntActivity> activityBox = new RadioButtonGroup<>(AntActivity.values());
+    protected final ChoiceBox<AntActivity> activityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
 
-    protected final RadioButtonGroup<AntLocation> locationBox = new RadioButtonGroup<>(AntLocation.values());
+    protected final ChoiceBox<AntLocation> locationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
     
     protected final CheckBox interactionBox = new CheckBox("Interaction");
     
-    protected final RadioButtonGroup<InteractionMarker.InteractionType> interactionTypeBox
-            = new RadioButtonGroup<>(InteractionMarker.InteractionType.values());
+    protected final ChoiceBox<InteractionMarker.InteractionType> interactionTypeBox
+            = new ChoiceBox<>(FXCollections.observableArrayList(InteractionMarker.InteractionType.values()));
     
     protected final IntegerField metAntIdField = new IntegerField(0);
     
-    protected final RadioButtonGroup<AntActivity> metActivityBox = new RadioButtonGroup<>(AntActivity.values());
-    protected final RadioButtonGroup<AntLocation> metLocationBox = new RadioButtonGroup<>(AntLocation.values());
+    protected final ChoiceBox<AntActivity> metActivityBox = new ChoiceBox<>(FXCollections.observableArrayList(AntActivity.values()));
+    protected final ChoiceBox<AntLocation> metLocationBox = new ChoiceBox<>(FXCollections.observableArrayList(AntLocation.values()));
     
 
     private final VBox root = new VBox();
