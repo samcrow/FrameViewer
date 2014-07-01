@@ -14,6 +14,7 @@ public enum AntLocation {
     Descending,
     AtTunnel,
     AtExit,
+    Outside,
     
     Unknown,
     

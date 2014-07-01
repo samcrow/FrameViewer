@@ -270,6 +270,18 @@ public class FrameCanvas extends PaintableCanvas {
             marker.setAntId(MarkerDialog.getLastAntId());
             return marker;
         }
+        else if(keyEvent.getCharacter().equals("g")) {
+            // Not an interaction: Focal ant walking, edge
+            Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.Edge);
+            marker.setAntId(MarkerDialog.getLastAntId());
+            return marker;
+        }
+        else if(keyEvent.getCharacter().equals("o")) {
+            // Not an interaction: Focal ant walking, outside
+            Marker marker = new Marker(screenPos, AntActivity.Walking, AntLocation.Outside);
+            marker.setAntId(MarkerDialog.getLastAntId());
+            return marker;
+        }
         else {
             throw new IllegalArgumentException("No marker default corresponding to this key");
         }
