@@ -126,7 +126,7 @@ public class PersistentFrameDataStore<T extends Marker> extends FrameDataStore<T
             // Read and ignore header
             reader.readLine();
 
-            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<metAntId>\\d+)$");
+            final Pattern linePattern = Pattern.compile("^(?<ant>\\d+),(?<frame>\\d+),(?<x>\\d+),(?<y>\\d+),(?<focusAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<focusAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*),(?<interactionType>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntActivity>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<trackedAntLocation>[a-zA-Z_$][a-zA-Z\\d_$]*)*,(?<metAntId>\\d+)*$");
 
             while (true) {
                 String line = reader.readLine();
